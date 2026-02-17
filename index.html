@@ -1,546 +1,510 @@
-1→<!DOCTYPE html>
-     2→<html lang="en">
-     3→<head>
-     4→    <meta charset="UTF-8">
-     5→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6→    <title>PDF File Separator - FINAL VERSION</title>
-     7→    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-     8→    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-     9→    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    10→    <style>
-    11→        * {
-    12→            margin: 0;
-    13→            padding: 0;
-    14→            box-sizing: border-box;
-    15→        }
-    16→
-    17→        body {
-    18→            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    19→            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    20→            min-height: 100vh;
-    21→            padding: 20px;
-    22→        }
-    23→
-    24→        .container {
-    25→            max-width: 1400px;
-    26→            margin: 0 auto;
-    27→            background: white;
-    28→            border-radius: 16px;
-    29→            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    30→            overflow: hidden;
-    31→        }
-    32→
-    33→        .header {
-    34→            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    35→            color: white;
-    36→            padding: 30px;
-    37→            text-align: center;
-    38→        }
-    39→
-    40→        .header h1 {
-    41→            font-size: 2.5em;
-    42→            margin-bottom: 10px;
-    43→        }
-    44→
-    45→        .header p {
-    46→            font-size: 1.1em;
-    47→            opacity: 0.9;
-    48→        }
-    49→
-    50→        .upload-section {
-    51→            padding: 40px;
-    52→            text-align: center;
-    53→            border-bottom: 2px solid #f0f0f0;
-    54→        }
-    55→
-    56→        .upload-area {
-    57→            border: 3px dashed #667eea;
-    58→            border-radius: 12px;
-    59→            padding: 60px 40px;
-    60→            background: #f8f9ff;
-    61→            cursor: pointer;
-    62→            transition: all 0.3s ease;
-    63→        }
-    64→
-    65→        .upload-area:hover {
-    66→            background: #f0f2ff;
-    67→            border-color: #764ba2;
-    68→        }
-    69→
-    70→        .upload-area.dragover {
-    71→            background: #e8ebff;
-    72→            border-color: #764ba2;
-    73→            transform: scale(1.02);
-    74→        }
-    75→
-    76→        .upload-icon {
-    77→            font-size: 4em;
-    78→            margin-bottom: 20px;
-    79→        }
-    80→
-    81→        .upload-text {
-    82→            font-size: 1.3em;
-    83→            color: #667eea;
-    84→            margin-bottom: 10px;
-    85→            font-weight: 600;
-    86→        }
-    87→
-    88→        .upload-subtext {
-    89→            color: #666;
-    90→            font-size: 0.95em;
-    91→        }
-    92→
-    93→        #fileInput {
-    94→            display: none;
-    95→        }
-    96→
-    97→        .btn {
-    98→            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    99→            color: white;
-   100→            border: none;
-   101→            padding: 14px 32px;
-   102→            border-radius: 8px;
-   103→            font-size: 1.1em;
-   104→            cursor: pointer;
-   105→            transition: all 0.3s ease;
-   106→            font-weight: 600;
-   107→            margin: 10px 5px;
-   108→        }
-   109→
-   110→        .btn:hover {
-   111→            transform: translateY(-2px);
-   112→            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-   113→        }
-   114→
-   115→        .btn:disabled {
-   116→            opacity: 0.5;
-   117→            cursor: not-allowed;
-   118→            transform: none;
-   119→        }
-   120→
-   121→        .btn-success {
-   122→            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-   123→        }
-   124→
-   125→        .btn-success:hover {
-   126→            box-shadow: 0 8px 20px rgba(56, 239, 125, 0.4);
-   127→        }
-   128→
-   129→        .pages-section {
-   130→            padding: 40px;
-   131→            display: none;
-   132→        }
-   133→
-   134→        .pages-section.active {
-   135→            display: block;
-   136→        }
-   137→
-   138→        .controls {
-   139→            display: flex;
-   140→            justify-content: space-between;
-   141→            align-items: center;
-   142→            margin-bottom: 30px;
-   143→            flex-wrap: wrap;
-   144→            gap: 15px;
-   145→        }
-   146→
-   147→        .controls h2 {
-   148→            color: #333;
-   149→            font-size: 1.8em;
-   150→        }
-   151→
-   152→        .pages-grid {
-   153→            display: grid;
-   154→            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-   155→            gap: 25px;
-   156→            margin-bottom: 30px;
-   157→        }
-   158→
-   159→        .page-card {
-   160→            background: white;
-   161→            border: 2px solid #e0e0e0;
-   162→            border-radius: 12px;
-   163→            padding: 20px;
-   164→            transition: all 0.3s ease;
-   165→            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-   166→        }
-   167→
-   168→        .page-card:hover {
-   169→            transform: translateY(-5px);
-   170→            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-   171→            border-color: #667eea;
-   172→        }
-   173→
-   174→        .page-number {
-   175→            font-weight: 700;
-   176→            color: #667eea;
-   177→            margin-bottom: 15px;
-   178→            font-size: 1.1em;
-   179→        }
-   180→
-   181→        .page-preview {
-   182→            width: 100%;
-   183→            border: 1px solid #ddd;
-   184→            border-radius: 8px;
-   185→            margin-bottom: 15px;
-   186→            background: #f9f9f9;
-   187→            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-   188→        }
-   189→
-   190→        .category-select {
-   191→            width: 100%;
-   192→            padding: 12px;
-   193→            border: 2px solid #e0e0e0;
-   194→            border-radius: 8px;
-   195→            font-size: 1em;
-   196→            background: white;
-   197→            cursor: pointer;
-   198→            transition: all 0.3s ease;
-   199→        }
-   200→
-   201→        .category-select:focus {
-   202→            outline: none;
-   203→            border-color: #667eea;
-   204→            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-   205→        }
-   206→
-   207→        .loading {
-   208→            text-align: center;
-   209→            padding: 40px;
-   210→            color: #667eea;
-   211→            font-size: 1.2em;
-   212→        }
-   213→
-   214→        .spinner {
-   215→            border: 4px solid #f3f3f3;
-   216→            border-top: 4px solid #667eea;
-   217→            border-radius: 50%;
-   218→            width: 50px;
-   219→            height: 50px;
-   220→            animation: spin 1s linear infinite;
-   221→            margin: 20px auto;
-   222→        }
-   223→
-   224→        @keyframes spin {
-   225→            0% { transform: rotate(0deg); }
-   226→            100% { transform: rotate(360deg); }
-   227→        }
-   228→
-   229→        .action-buttons {
-   230→            display: flex;
-   231→            gap: 15px;
-   232→            flex-wrap: wrap;
-   233→            justify-content: center;
-   234→        }
-   235→
-   236→        .success-message {
-   237→            background: #d4edda;
-   238→            border: 1px solid #c3e6cb;
-   239→            color: #155724;
-   240→            padding: 15px 20px;
-   241→            border-radius: 8px;
-   242→            margin: 20px 0;
-   243→            text-align: center;
-   244→            font-weight: 600;
-   245→        }
-   246→
-   247→        .error-message {
-   248→            background: #f8d7da;
-   249→            border: 1px solid #f5c6cb;
-   250→            color: #721c24;
-   251→            padding: 15px 20px;
-   252→            border-radius: 8px;
-   253→            margin: 20px 0;
-   254→            text-align: center;
-   255→            font-weight: 600;
-   256→        }
-   257→
-   258→        @media (max-width: 768px) {
-   259→            .header h1 {
-   260→                font-size: 1.8em;
-   261→            }
-   262→
-   263→            .pages-grid {
-   264→                grid-template-columns: 1fr;
-   265→            }
-   266→
-   267→            .controls {
-   268→                flex-direction: column;
-   269→                align-items: stretch;
-   270→            }
-   271→        }
-   272→    </style>
-   273→</head>
-   274→<body>
-   275→    <div class="container">
-   276→        <div class="header">
-   277→            <h1>📄 PDF File Separator</h1>
-   278→            <p>Upload, categorize, and organize your PDF documents with ease</p>
-   279→        </div>
-   280→
-   281→        <div class="upload-section" id="uploadSection">
-   282→            <div class="upload-area" id="uploadArea">
-   283→                <div class="upload-icon">📤</div>
-   284→                <div class="upload-text">Click to upload or drag & drop your PDF file</div>
-   285→                <div class="upload-subtext">Supports PDF files up to 50MB</div>
-   286→            </div>
-   287→            <input type="file" id="fileInput" accept=".pdf">
-   288→        </div>
-   289→
-   290→        <div class="pages-section" id="pagesSection">
-   291→            <div class="controls">
-   292→                <h2>Categorize Your Documents</h2>
-   293→                <button class="btn" onclick="resetApp()">Upload New File</button>
-   294→            </div>
-   295→            <div id="loading" class="loading" style="display: none;">
-   296→                <div class="spinner"></div>
-   297→                Processing your PDF...
-   298→            </div>
-   299→            <div class="pages-grid" id="pagesGrid"></div>
-   300→            <div class="action-buttons">
-   301→                <button class="btn btn-success" onclick="downloadSeparatedPDFs()" id="downloadBtn">
-   302→                    Download All PDFs (ZIP)
-   303→                </button>
-   304→            </div>
-   305→            <div id="messageContainer"></div>
-   306→        </div>
-   307→    </div>
-   308→
-   309→    <script>
-   310→        console.log('=== PDF Separator FINAL VERSION ===');
-   311→        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-   312→
-   313→        // Store the original file as a Blob - Blobs persist!
-   314→        let originalFileBlob = null;
-   315→        let pdfDoc = null;
-   316→        const pageCategories = {};
-   317→
-   318→        const categories = [
-   319→            { value: '', label: 'Select Category' },
-   320→            { value: 'police-report', label: 'Police Report' },
-   321→            { value: 'vehicle-reg', label: 'Vehicle Registration' },
-   322→            { value: 'driver-license', label: 'Driver License' },
-   323→            { value: 'civil-id', label: 'Civil ID' },
-   324→            { value: 'incident-report', label: 'Incident Report' },
-   325→            { value: 'garage-estimation', label: 'Garage Estimation' },
-   326→            { value: 'insurance-policy', label: 'Insurance Policy' },
-   327→            { value: 'other', label: 'Other' }
-   328→        ];
-   329→
-   330→        const uploadArea = document.getElementById('uploadArea');
-   331→        const fileInput = document.getElementById('fileInput');
-   332→
-   333→        uploadArea.addEventListener('click', () => fileInput.click());
-   334→
-   335→        uploadArea.addEventListener('dragover', (e) => {
-   336→            e.preventDefault();
-   337→            uploadArea.classList.add('dragover');
-   338→        });
-   339→
-   340→        uploadArea.addEventListener('dragleave', () => {
-   341→            uploadArea.classList.remove('dragover');
-   342→        });
-   343→
-   344→        uploadArea.addEventListener('drop', (e) => {
-   345→            e.preventDefault();
-   346→            uploadArea.classList.remove('dragover');
-   347→            const file = e.dataTransfer.files[0];
-   348→            if (file && file.type === 'application/pdf') {
-   349→                handleFileUpload(file);
-   350→            } else {
-   351→                showMessage('Please upload a valid PDF file', 'error');
-   352→            }
-   353→        });
-   354→
-   355→        fileInput.addEventListener('change', (e) => {
-   356→            const file = e.target.files[0];
-   357→            if (file) {
-   358→                handleFileUpload(file);
-   359→            }
-   360→        });
-   361→
-   362→        async function handleFileUpload(file) {
-   363→            console.log('File selected:', file.name, 'Size:', file.size);
-   364→            document.getElementById('loading').style.display = 'block';
-   365→            document.getElementById('pagesGrid').innerHTML = '';
-   366→
-   367→            // Store the file as a Blob directly - no ArrayBuffer conversion!
-   368→            originalFileBlob = file;
-   369→            console.log('✓ File stored as Blob');
-   370→
-   371→            // Read it for preview
-   372→            const arrayBuffer = await file.arrayBuffer();
-   373→            const uint8Array = new Uint8Array(arrayBuffer);
-   374→            console.log('✓ Created Uint8Array for preview, size:', uint8Array.length);
-   375→
-   376→            await loadPDF(uint8Array);
-   377→        }
-   378→
-   379→        async function loadPDF(bytes) {
-   380→            try {
-   381→                pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
-   382→                console.log('✓ PDF loaded, pages:', pdfDoc.numPages);
-   383→                await renderPages();
-   384→                document.getElementById('uploadSection').style.display = 'none';
-   385→                document.getElementById('pagesSection').classList.add('active');
-   386→                document.getElementById('loading').style.display = 'none';
-   387→            } catch (error) {
-   388→                console.error('Error loading PDF:', error);
-   389→                showMessage('Error loading PDF. Please try again.', 'error');
-   390→                document.getElementById('loading').style.display = 'none';
-   391→            }
-   392→        }
-   393→
-   394→        async function renderPages() {
-   395→            const grid = document.getElementById('pagesGrid');
-   396→            grid.innerHTML = '';
-   397→
-   398→            for (let i = 1; i <= pdfDoc.numPages; i++) {
-   399→                const page = await pdfDoc.getPage(i);
-   400→                const viewport = page.getViewport({ scale: 0.5 });
-   401→
-   402→                const canvas = document.createElement('canvas');
-   403→                const context = canvas.getContext('2d');
-   404→                canvas.width = viewport.width;
-   405→                canvas.height = viewport.height;
-   406→
-   407→                await page.render({
-   408→                    canvasContext: context,
-   409→                    viewport: viewport
-   410→                }).promise;
-   411→
-   412→                const card = document.createElement('div');
-   413→                card.className = 'page-card';
-   414→                card.innerHTML = `
-   415→                    <div class="page-number">Page ${i}</div>
-   416→                    <img src="${canvas.toDataURL()}" class="page-preview" alt="Page ${i}">
-   417→                    <select class="category-select" data-page="${i}">
-   418→                        ${categories.map(cat => `<option value="${cat.value}">${cat.label}</option>`).join('')}
-   419→                    </select>
-   420→                `;
-   421→
-   422→                card.querySelector('select').addEventListener('change', (e) => {
-   423→                    pageCategories[i] = e.target.value;
-   424→                    console.log('Page', i, 'categorized as:', e.target.value);
-   425→                });
-   426→
-   427→                grid.appendChild(card);
-   428→            }
-   429→            console.log('✓ All pages rendered');
-   430→        }
-   431→
-   432→        async function downloadSeparatedPDFs() {
-   433→            console.log('=== DOWNLOAD STARTED ===');
-   434→
-   435→            const categorizedPages = {};
-   436→
-   437→            // Group pages by category
-   438→            for (let [page, category] of Object.entries(pageCategories)) {
-   439→                if (category && category !== '') {
-   440→                    if (!categorizedPages[category]) {
-   441→                        categorizedPages[category] = [];
-   442→                    }
-   443→                    categorizedPages[category].push(parseInt(page));
-   444→                }
-   445→            }
-   446→
-   447→            console.log('Categorized pages:', categorizedPages);
-   448→
-   449→            if (Object.keys(categorizedPages).length === 0) {
-   450→                showMessage('Please select at least one category for your pages', 'error');
-   451→                return;
-   452→            }
-   453→
-   454→            document.getElementById('loading').style.display = 'block';
-   455→
-   456→            try {
-   457→                if (!originalFileBlob) {
-   458→                    throw new Error('Original file not found. Please re-upload.');
-   459→                }
-   460→
-   461→                console.log('✓ Original file blob exists, size:', originalFileBlob.size);
-   462→
-   463→                // Convert Blob to ArrayBuffer fresh each time
-   464→                const arrayBuffer = await originalFileBlob.arrayBuffer();
-   465→                console.log('✓ Converted to ArrayBuffer, size:', arrayBuffer.byteLength);
-   466→
-   467→                const { PDFDocument } = PDFLib;
-   468→                const originalPdf = await PDFDocument.load(arrayBuffer);
-   469→                console.log('✓ PDF loaded with pdf-lib, pages:', originalPdf.getPageCount());
-   470→
-   471→                // Create a ZIP file to store all categorized PDFs
-   472→                const zip = new JSZip();
-   473→
-   474→                for (let [category, pages] of Object.entries(categorizedPages)) {
-   475→                    console.log('Processing category:', category);
-   476→                    const newPdf = await PDFDocument.create();
-   477→
-   478→                    pages.sort((a, b) => a - b);
-   479→
-   480→                    for (let pageNum of pages) {
-   481→                        const [copiedPage] = await newPdf.copyPages(originalPdf, [pageNum - 1]);
-   482→                        newPdf.addPage(copiedPage);
-   483→                    }
-   484→
-   485→                    const pdfBytes = await newPdf.save();
-   486→                    console.log('✓ Created PDF for', category, 'size:', pdfBytes.length);
-   487→
-   488→                    const categoryLabel = categories.find(c => c.value === category)?.label || category;
-   489→                    const fileName = `${categoryLabel.replace(/\s+/g, '_')}.pdf`;
-   490→
-   491→                    // Add this PDF to the ZIP
-   492→                    zip.file(fileName, pdfBytes);
-   493→                }
-   494→
-   495→                console.log('✓ Generating ZIP file...');
-   496→                const zipBlob = await zip.generateAsync({ type: 'blob' });
-   497→                console.log('✓ ZIP created, size:', zipBlob.size);
-   498→
-   499→                const url = URL.createObjectURL(zipBlob);
-   500→                const link = document.createElement('a');
-   501→                link.href = url;
-   502→                link.download = 'Categorized_Documents.zip';
-   503→                document.body.appendChild(link);
-   504→                link.click();
-   505→                document.body.removeChild(link);
-   506→
-   507→                setTimeout(() => URL.revokeObjectURL(url), 100);
-   508→
-   509→                document.getElementById('loading').style.display = 'none';
-   510→                showMessage(`✓ Successfully created ZIP with ${Object.keys(categorizedPages).length} PDF files!`, 'success');
-   511→                console.log('=== DOWNLOAD COMPLETE ===');
-   512→            } catch (error) {
-   513→                console.error('ERROR:', error);
-   514→                console.error('Stack:', error.stack);
-   515→                document.getElementById('loading').style.display = 'none';
-   516→                showMessage(`Error: ${error.message}`, 'error');
-   517→            }
-   518→        }
-   519→
-   520→        function showMessage(message, type) {
-   521→            const container = document.getElementById('messageContainer');
-   522→            const className = type === 'error' ? 'error-message' : 'success-message';
-   523→            container.innerHTML = `<div class="${className}">${message}</div>`;
-   524→            setTimeout(() => {
-   525→                container.innerHTML = '';
-   526→            }, 5000);
-   527→        }
-   528→
-   529→        function resetApp() {
-   530→            originalFileBlob = null;
-   531→            pdfDoc = null;
-   532→            Object.keys(pageCategories).forEach(key => delete pageCategories[key]);
-   533→            document.getElementById('pagesSection').classList.remove('active');
-   534→            document.getElementById('uploadSection').style.display = 'block';
-   535→            document.getElementById('pagesGrid').innerHTML = '';
-   536→            document.getElementById('messageContainer').innerHTML = '';
-   537→            fileInput.value = '';
-   538→            console.log('App reset');
-   539→        }
-   540→    </script>
-   541→</body>
-   542→</html>
-   543→
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Upload PDF files, categorize pages, and download organized documents in a ZIP file">
+    <title>PDF Document Organizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            padding: 40px;
+            text-align: center;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 60px 40px;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 8px 20px rgba(56, 239, 125, 0.4);
+        }
+
+        .pages-section {
+            padding: 40px;
+            display: none;
+        }
+
+        .pages-section.active {
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .controls h2 {
+            color: #333;
+            font-size: 1.8em;
+        }
+
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .page-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .page-number {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .page-preview {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .pages-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 PDF Document Organizer</h1>
+            <p>Upload, categorize, and organize your PDF documents with ease</p>
+        </div>
+
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📤</div>
+                <div class="upload-text">Click to upload or drag & drop your PDF file</div>
+                <div class="upload-subtext">Supports PDF files up to 50MB</div>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf">
+        </div>
+
+        <div class="pages-section" id="pagesSection">
+            <div class="controls">
+                <h2>Categorize Your Documents</h2>
+                <button class="btn" onclick="resetApp()">Upload New File</button>
+            </div>
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                Processing your PDF...
+            </div>
+            <div class="pages-grid" id="pagesGrid"></div>
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="downloadSeparatedPDFs()" id="downloadBtn">
+                    Download All PDFs (ZIP)
+                </button>
+            </div>
+            <div id="messageContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let originalFileBlob = null;
+        let pdfDoc = null;
+        const pageCategories = {};
+
+        const categories = [
+            { value: '', label: 'Select Category' },
+            { value: 'police-report', label: 'Police Report' },
+            { value: 'vehicle-reg', label: 'Vehicle Registration' },
+            { value: 'driver-license', label: 'Driver License' },
+            { value: 'civil-id', label: 'Civil ID' },
+            { value: 'incident-report', label: 'Incident Report' },
+            { value: 'garage-estimation', label: 'Garage Estimation' },
+            { value: 'other', label: 'Other' }
+        ];
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                handleFileUpload(file);
+            } else {
+                showMessage('Please upload a valid PDF file', 'error');
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        });
+
+        async function handleFileUpload(file) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('pagesGrid').innerHTML = '';
+
+            originalFileBlob = file;
+            const arrayBuffer = await file.arrayBuffer();
+            const uint8Array = new Uint8Array(arrayBuffer);
+
+            await loadPDF(uint8Array);
+        }
+
+        async function loadPDF(bytes) {
+            try {
+                pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+                await renderPages();
+                document.getElementById('uploadSection').style.display = 'none';
+                document.getElementById('pagesSection').classList.add('active');
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                showMessage('Error loading PDF. Please try again.', 'error');
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function renderPages() {
+            const grid = document.getElementById('pagesGrid');
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const page = await pdfDoc.getPage(i);
+                const viewport = page.getViewport({ scale: 0.5 });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+
+                const card = document.createElement('div');
+                card.className = 'page-card';
+                card.innerHTML = `
+                    <div class="page-number">Page ${i}</div>
+                    <img src="${canvas.toDataURL()}" class="page-preview" alt="Page ${i}">
+                    <select class="category-select" data-page="${i}">
+                        ${categories.map(cat => `<option value="${cat.value}">${cat.label}</option>`).join('')}
+                    </select>
+                `;
+
+                card.querySelector('select').addEventListener('change', (e) => {
+                    pageCategories[i] = e.target.value;
+                });
+
+                grid.appendChild(card);
+            }
+        }
+
+        async function downloadSeparatedPDFs() {
+            const categorizedPages = {};
+
+            for (let [page, category] of Object.entries(pageCategories)) {
+                if (category && category !== '') {
+                    if (!categorizedPages[category]) {
+                        categorizedPages[category] = [];
+                    }
+                    categorizedPages[category].push(parseInt(page));
+                }
+            }
+
+            if (Object.keys(categorizedPages).length === 0) {
+                showMessage('Please select at least one category for your pages', 'error');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                if (!originalFileBlob) {
+                    throw new Error('Original file not found. Please re-upload.');
+                }
+
+                const arrayBuffer = await originalFileBlob.arrayBuffer();
+                const { PDFDocument } = PDFLib;
+                const originalPdf = await PDFDocument.load(arrayBuffer);
+
+                const zip = new JSZip();
+
+                for (let [category, pages] of Object.entries(categorizedPages)) {
+                    const newPdf = await PDFDocument.create();
+
+                    pages.sort((a, b) => a - b);
+
+                    for (let pageNum of pages) {
+                        const [copiedPage] = await newPdf.copyPages(originalPdf, [pageNum - 1]);
+                        newPdf.addPage(copiedPage);
+                    }
+
+                    const pdfBytes = await newPdf.save();
+                    const categoryLabel = categories.find(c => c.value === category)?.label || category;
+                    const fileName = `${categoryLabel.replace(/\s+/g, '_')}.pdf`;
+
+                    zip.file(fileName, pdfBytes);
+                }
+
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+                const url = URL.createObjectURL(zipBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'Categorized_Documents.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+
+                document.getElementById('loading').style.display = 'none';
+                showMessage(`✓ Successfully created ZIP with ${Object.keys(categorizedPages).length} PDF files!`, 'success');
+            } catch (error) {
+                console.error('ERROR:', error);
+                document.getElementById('loading').style.display = 'none';
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            const className = type === 'error' ? 'error-message' : 'success-message';
+            container.innerHTML = `<div class="${className}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function resetApp() {
+            originalFileBlob = null;
+            pdfDoc = null;
+            Object.keys(pageCategories).forEach(key => delete pageCategories[key]);
+            document.getElementById('pagesSection').classList.remove('active');
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('pagesGrid').innerHTML = '';
+            document.getElementById('messageContainer').innerHTML = '';
+            fileInput.value = '';
+        }
+    </script>
 </body>
 </html>
