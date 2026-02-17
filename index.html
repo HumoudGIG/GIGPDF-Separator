@@ -1,34 +1,535 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>PDF File Separator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF File Separator - FINAL VERSION</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            padding: 40px;
+            text-align: center;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 60px 40px;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 8px 20px rgba(56, 239, 125, 0.4);
+        }
+
+        .pages-section {
+            padding: 40px;
+            display: none;
+        }
+
+        .pages-section.active {
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .controls h2 {
+            color: #333;
+            font-size: 1.8em;
+        }
+
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .page-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .page-number {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .page-preview {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .pages-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Upload PDF File(s)</h1>
-    <input type="file" id="fileInput" multiple accept=".pdf"/>
-    <button id="processButton">Process PDF</button>
+    <div class="container">
+        <div class="header">
+            <h1>📄 PDF File Separator</h1>
+            <p>Upload, categorize, and organize your PDF documents with ease</p>
+        </div>
+
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📤</div>
+                <div class="upload-text">Click to upload or drag & drop your PDF file</div>
+                <div class="upload-subtext">Supports PDF files up to 50MB</div>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf">
+        </div>
+
+        <div class="pages-section" id="pagesSection">
+            <div class="controls">
+                <h2>Categorize Your Documents</h2>
+                <button class="btn" onclick="resetApp()">Upload New File</button>
+            </div>
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                Processing your PDF...
+            </div>
+            <div class="pages-grid" id="pagesGrid"></div>
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="downloadSeparatedPDFs()" id="downloadBtn">
+                    Download All PDFs (ZIP)
+                </button>
+            </div>
+            <div id="messageContainer"></div>
+        </div>
+    </div>
 
     <script>
-        document.getElementById('processButton').addEventListener('click', async () => {
-            const files = document.getElementById('fileInput').files;
-            for (const file of files) {
-                const reader = new FileReader();
-                reader.onload = async function(event) {
-                    const pdfData = new Uint8Array(event.target.result);
-                    const pdfDoc = await PDFLib.PDFDocument.load(pdfData);
-                    
-                    // Implement logic to categorize and separate PDF files here
-                    // For demonstration, we will just log the number of pages
-                    console.log(`File: ${file.name} has ${pdfDoc.getPageCount()} pages.`);
-                    
-                    // Add your separation logic based on category (e.g., Insurance Policy)
-                };
-                reader.readAsArrayBuffer(file);
+        console.log('=== PDF Separator FINAL VERSION ===');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let originalFileBlob = null;
+        let pdfDoc = null;
+        const pageCategories = {};
+
+        const categories = [
+            { value: '', label: 'Select Category' },
+            { value: 'police-report', label: 'Police Report' },
+            { value: 'vehicle-reg', label: 'Vehicle Registration' },
+            { value: 'driver-license', label: 'Driver License' },
+            { value: 'civil-id', label: 'Civil ID' },
+            { value: 'incident-report', label: 'Incident Report' },
+            { value: 'garage-estimation', label: 'Garage Estimation' },
+            { value: 'insurance-policy', label: 'Insurance Policy' },
+            { value: 'other', label: 'Other' }
+        ];
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                handleFileUpload(file);
+            } else {
+                showMessage('Please upload a valid PDF file', 'error');
             }
         });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        });
+
+        async function handleFileUpload(file) {
+            console.log('File selected:', file.name, 'Size:', file.size);
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('pagesGrid').innerHTML = '';
+
+            originalFileBlob = file;
+            console.log('✓ File stored as Blob');
+
+            const arrayBuffer = await file.arrayBuffer();
+            const uint8Array = new Uint8Array(arrayBuffer);
+            console.log('✓ Created Uint8Array for preview, size:', uint8Array.length);
+
+            await loadPDF(uint8Array);
+        }
+
+        async function loadPDF(bytes) {
+            try {
+                pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+                console.log('✓ PDF loaded, pages:', pdfDoc.numPages);
+                await renderPages();
+                document.getElementById('uploadSection').style.display = 'none';
+                document.getElementById('pagesSection').classList.add('active');
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                showMessage('Error loading PDF. Please try again.', 'error');
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function renderPages() {
+            const grid = document.getElementById('pagesGrid');
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const page = await pdfDoc.getPage(i);
+                const viewport = page.getViewport({ scale: 0.5 });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+
+                const card = document.createElement('div');
+                card.className = 'page-card';
+                card.innerHTML = `
+                    <div class="page-number">Page ${i}</div>
+                    <img src="${canvas.toDataURL()}" class="page-preview" alt="Page ${i}">
+                    <select class="category-select" data-page="${i}">
+                        ${categories.map(cat => `<option value="${cat.value}">${cat.label}</option>`).join('')}
+                    </select>
+                `;
+
+                card.querySelector('select').addEventListener('change', (e) => {
+                    pageCategories[i] = e.target.value;
+                    console.log('Page', i, 'categorized as:', e.target.value);
+                });
+
+                grid.appendChild(card);
+            }
+            console.log('✓ All pages rendered');
+        }
+
+        async function downloadSeparatedPDFs() {
+            console.log('=== DOWNLOAD STARTED ===');
+
+            const categorizedPages = {};
+
+            for (let [page, category] of Object.entries(pageCategories)) {
+                if (category && category !== '') {
+                    if (!categorizedPages[category]) {
+                        categorizedPages[category] = [];
+                    }
+                    categorizedPages[category].push(parseInt(page));
+                }
+            }
+
+            console.log('Categorized pages:', categorizedPages);
+
+            if (Object.keys(categorizedPages).length === 0) {
+                showMessage('Please select at least one category for your pages', 'error');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                if (!originalFileBlob) {
+                    throw new Error('Original file not found. Please re-upload.');
+                }
+
+                console.log('✓ Original file blob exists, size:', originalFileBlob.size);
+
+                const arrayBuffer = await originalFileBlob.arrayBuffer();
+                console.log('✓ Converted to ArrayBuffer, size:', arrayBuffer.byteLength);
+
+                const { PDFDocument } = PDFLib;
+                const originalPdf = await PDFDocument.load(arrayBuffer);
+                console.log('✓ PDF loaded with pdf-lib, pages:', originalPdf.getPageCount());
+
+                const zip = new JSZip();
+
+                for (let [category, pages] of Object.entries(categorizedPages)) {
+                    console.log('Processing category:', category);
+                    const newPdf = await PDFDocument.create();
+
+                    pages.sort((a, b) => a - b);
+
+                    for (let pageNum of pages) {
+                        const [copiedPage] = await newPdf.copyPages(originalPdf, [pageNum - 1]);
+                        newPdf.addPage(copiedPage);
+                    }
+
+                    const pdfBytes = await newPdf.save();
+                    console.log('✓ Created PDF for', category, 'size:', pdfBytes.length);
+
+                    const categoryLabel = categories.find(c => c.value === category)?.label || category;
+                    const fileName = `${categoryLabel.replace(/\s+/g, '_')}.pdf`;
+
+                    zip.file(fileName, pdfBytes);
+                }
+
+                console.log('✓ Generating ZIP file...');
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                console.log('✓ ZIP created, size:', zipBlob.size);
+
+                const url = URL.createObjectURL(zipBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'Categorized_Documents.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+
+                document.getElementById('loading').style.display = 'none';
+                showMessage(`✓ Successfully created ZIP with ${Object.keys(categorizedPages).length} PDF files!`, 'success');
+                console.log('=== DOWNLOAD COMPLETE ===');
+            } catch (error) {
+                console.error('ERROR:', error);
+                console.error('Stack:', error.stack);
+                document.getElementById('loading').style.display = 'none';
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            const className = type === 'error' ? 'error-message' : 'success-message';
+            container.innerHTML = `<div class="${className}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function resetApp() {
+            originalFileBlob = null;
+            pdfDoc = null;
+            Object.keys(pageCategories).forEach(key => delete pageCategories[key]);
+            document.getElementById('pagesSection').classList.remove('active');
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('pagesGrid').innerHTML = '';
+            document.getElementById('messageContainer').innerHTML = '';
+            fileInput.value = '';
+            console.log('App reset');
+        }
     </script>
 </body>
 </html>
