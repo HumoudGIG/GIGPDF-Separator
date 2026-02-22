@@ -3,84 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF File Separator</title>
+    <title>GIGPDF Tools</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ink: #0f0f12;
-            --ink-soft: #3a3a4a;
-            --ink-muted: #7a7a8e;
-            --surface: #ffffff;
-            --surface-2: #f4f4f8;
-            --surface-3: #eaeaf0;
-            --accent: #4f46e5;
-            --accent-light: #ede9fe;
-            --accent-glow: rgba(79,70,229,0.15);
-            --success: #059669;
-            --success-light: #d1fae5;
-            --danger: #dc2626;
-            --danger-light: #fee2e2;
-            --warn: #d97706;
-            --warn-light: #fef3c7;
-            --radius: 12px;
-            --radius-sm: 8px;
+            --ink: #0f0f12; --ink-soft: #3a3a4a; --ink-muted: #7a7a8e;
+            --surface: #ffffff; --surface-2: #f4f4f8; --surface-3: #eaeaf0;
+            --accent: #4f46e5; --accent-light: #ede9fe; --accent-glow: rgba(79,70,229,0.15);
+            --success: #059669; --success-light: #d1fae5;
+            --danger: #dc2626; --danger-light: #fee2e2;
+            --warn: #d97706; --warn-light: #fef3c7;
+            --radius: 12px; --radius-sm: 8px;
             --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
             --shadow-lg: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'DM Sans', sans-serif;
             background: #f0f0f6;
-            background-image:
-                radial-gradient(circle at 20% 20%, rgba(79,70,229,0.06) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(124,58,237,0.04) 0%, transparent 50%);
-            min-height: 100vh;
-            color: var(--ink);
+            background-image: radial-gradient(circle at 20% 20%, rgba(79,70,229,0.06) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 80%, rgba(124,58,237,0.04) 0%, transparent 50%);
+            min-height: 100vh; color: var(--ink);
         }
-
-        .topbar {
-            background: var(--surface);
-            border-bottom: 1px solid var(--surface-3);
-            padding: 0 40px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .topbar-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05em; }
+        /* Topbar */
+        .topbar { background: var(--surface); border-bottom: 1px solid var(--surface-3); padding: 0 40px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .topbar-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05em; cursor: pointer; }
         .topbar-brand .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
         .topbar-status { font-size: 0.78em; color: var(--ink-muted); font-family: 'DM Mono', monospace; display: flex; align-items: center; gap: 8px; }
         .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: pulse-dot 2s infinite; }
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
-
+        /* Landing */
+        #view-landing { display: none; }
+        #view-landing.active { display: block; }
+        .landing-body { max-width: 1160px; margin: 0 auto; padding: 72px 32px 100px; }
+        .landing-hero { text-align: center; margin-bottom: 64px; }
+        .landing-hero h1 { font-size: 3em; font-weight: 700; line-height: 1.1; margin-bottom: 14px; }
+        .landing-hero h1 em { font-style: normal; color: var(--accent); }
+        .landing-hero p { color: var(--ink-muted); font-size: 1.08em; max-width: 500px; margin: 0 auto; }
+        .tool-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; }
+        .tool-card { background: var(--surface); border: 2px solid var(--surface-3); border-radius: 20px; padding: 40px 36px; cursor: pointer; transition: all 0.25s ease; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+        .tool-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), #7c3aed); opacity: 0; transition: opacity 0.25s; }
+        .tool-card:hover { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow), var(--shadow-lg); transform: translateY(-4px); }
+        .tool-card:hover::before { opacity: 1; }
+        .tool-card-icon { width: 64px; height: 64px; background: var(--accent-light); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8em; margin-bottom: 22px; transition: transform 0.25s; }
+        .tool-card:hover .tool-card-icon { transform: scale(1.1) rotate(-4deg); }
+        .tool-card h2 { font-size: 1.4em; font-weight: 700; margin-bottom: 10px; }
+        .tool-card > p { color: var(--ink-muted); font-size: 0.93em; line-height: 1.6; margin-bottom: 22px; }
+        .feature-list { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-bottom: 28px; }
+        .feature-list li { display: flex; align-items: center; gap: 10px; font-size: 0.88em; color: var(--ink-soft); }
+        .feature-list li::before { content: '\2713'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+        .tool-card-btn { width: 100%; padding: 13px 20px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.95em; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .tool-card-btn:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,70,229,0.3); }
+        .tool-card-btn.annotator-btn { background: #7c3aed; }
+        .tool-card-btn.annotator-btn:hover { background: #6d28d9; box-shadow: 0 4px 16px rgba(124,58,237,0.3); }
+        /* Separator */
+        #view-separator { display: none; }
+        #view-separator.active { display: block; }
         .main { max-width: 1320px; margin: 0 auto; padding: 40px 32px 130px; }
-
-        #uploadSection { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 140px); }
+        #uploadSection { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 200px); }
         .upload-hero { text-align: center; margin-bottom: 40px; }
-        .upload-hero h1 { font-size: 2.8em; font-weight: 700; line-height: 1.1; margin-bottom: 12px; }
+        .upload-hero h1 { font-size: 2.6em; font-weight: 700; line-height: 1.1; margin-bottom: 12px; }
         .upload-hero h1 em { font-style: normal; color: var(--accent); }
         .upload-hero p { color: var(--ink-muted); font-size: 1.05em; }
-
-        .upload-zone {
-            width: 100%; max-width: 600px;
-            border: 2px dashed var(--surface-3);
-            border-radius: 20px; background: var(--surface);
-            padding: 70px 50px; text-align: center; cursor: pointer;
-            transition: all 0.25s ease; box-shadow: var(--shadow);
-        }
-        .upload-zone:hover, .upload-zone.dragover {
-            border-color: var(--accent); background: #fafafe;
-            box-shadow: 0 0 0 6px var(--accent-glow), var(--shadow-lg);
-            transform: translateY(-2px);
-        }
+        .upload-zone { width: 100%; max-width: 560px; border: 2px dashed var(--surface-3); border-radius: 20px; background: var(--surface); padding: 64px 50px; text-align: center; cursor: pointer; transition: all 0.25s ease; box-shadow: var(--shadow); }
+        .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: #fafafe; box-shadow: 0 0 0 6px var(--accent-glow), var(--shadow-lg); transform: translateY(-2px); }
         .upload-zone.dragover { background: var(--accent-light); }
         .upload-icon-wrap { width: 72px; height: 72px; background: var(--accent-light); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2em; transition: transform 0.2s; }
         .upload-zone:hover .upload-icon-wrap { transform: scale(1.1) rotate(-4deg); }
@@ -88,34 +77,15 @@
         .upload-zone p { color: var(--ink-muted); font-size: 0.9em; }
         .upload-zone .size-note { display: inline-block; margin-top: 16px; font-size: 0.78em; font-family: 'DM Mono', monospace; color: var(--ink-muted); background: var(--surface-2); padding: 4px 12px; border-radius: 20px; }
         .privacy-note { margin-top: 20px; font-size: 0.82em; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
-        #fileInput { display: none; }
-
         #pagesSection { display: none; }
-        #pagesSection.active { display: block; }
-
         .pages-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 20px; flex-wrap: wrap; }
         .pages-title h2 { font-size: 1.7em; font-weight: 700; }
         .pages-title p { color: var(--ink-muted); font-size: 0.9em; margin-top: 4px; }
-
         .progress-label { font-size: 0.82em; color: var(--ink-muted); font-family: 'DM Mono', monospace; margin-bottom: 8px; display: flex; justify-content: space-between; }
         .progress-bar-wrap { background: var(--surface-3); border-radius: 20px; height: 6px; margin-bottom: 20px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #7c3aed); border-radius: 20px; transition: width 0.4s ease; width: 0%; }
-
-        .quick-assign-panel {
-            background: var(--surface);
-            border: 1px solid var(--surface-3);
-            border-radius: var(--radius);
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-        .quick-assign-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 16px 20px 12px;
-            border-bottom: 1px solid var(--surface-3);
-        }
+        .quick-assign-panel { background: var(--surface); border: 1px solid var(--surface-3); border-radius: var(--radius); margin-bottom: 16px; box-shadow: var(--shadow); overflow: hidden; }
+        .quick-assign-header { display: flex; align-items: flex-start; gap: 12px; padding: 16px 20px 12px; border-bottom: 1px solid var(--surface-3); }
         .quick-assign-icon { font-size: 1.2em; margin-top: 1px; flex-shrink: 0; }
         .quick-assign-title { font-weight: 700; font-size: 0.95em; color: var(--ink); margin-bottom: 3px; }
         .quick-assign-sub { font-size: 0.8em; color: var(--ink-muted); line-height: 1.4; }
@@ -125,33 +95,23 @@
         .step-text { font-size: 0.84em; font-weight: 600; color: var(--ink-soft); white-space: nowrap; }
         .quick-assign-arrow { font-size: 1.1em; color: var(--ink-muted); flex-shrink: 0; }
         .quick-assign-divider { width: 1px; height: 28px; background: var(--surface-3); flex-shrink: 0; }
-        .bulk-select { padding: 8px 14px; border: 1.5px solid var(--surface-3); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.88em; color: var(--ink); background: var(--surface-2); cursor: pointer; transition: border-color 0.2s; }
+        .bulk-select { padding: 8px 14px; border: 1.5px solid var(--surface-3); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.88em; color: var(--ink); background: var(--surface-2); cursor: pointer; }
         .bulk-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
         .tbtn { font-family: 'DM Sans', sans-serif; font-size: 0.83em; font-weight: 600; padding: 8px 16px; border-radius: var(--radius-sm); border: 1.5px solid transparent; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
         .tbtn-primary { background: var(--accent); color: white; border-color: var(--accent); }
         .tbtn-primary:hover { background: #4338ca; transform: translateY(-1px); }
         .tbtn-ghost { background: transparent; color: var(--ink-muted); border-color: var(--surface-3); }
         .tbtn-ghost:hover { border-color: var(--danger); color: var(--danger); }
-
         .drag-hint { font-size: 0.8em; color: var(--ink-muted); background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-sm); padding: 8px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-
         .uncategorized-banner { background: var(--warn-light); border: 1px solid #fcd34d; color: var(--warn); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.86em; font-weight: 500; display: none; align-items: center; gap: 8px; margin-bottom: 18px; }
         .uncategorized-banner.visible { display: flex; }
-
         .pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin-bottom: 32px; }
-
-        .page-card {
-            background: var(--surface); border: 2px solid var(--surface-3);
-            border-radius: var(--radius); overflow: hidden;
-            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s, opacity 0.15s;
-            box-shadow: var(--shadow); position: relative; cursor: grab; user-select: none;
-        }
+        .page-card { background: var(--surface); border: 2px solid var(--surface-3); border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s, opacity 0.15s; box-shadow: var(--shadow); position: relative; cursor: grab; user-select: none; }
         .page-card:active { cursor: grabbing; }
         .page-card:hover { box-shadow: var(--shadow-lg); border-color: #c7c7e0; }
         .page-card.categorized { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow); }
         .page-card.dragging { opacity: 0.3; transform: scale(0.96); cursor: grabbing; }
         .page-card.drag-over { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow), var(--shadow-lg); transform: scale(1.03); }
-
         .card-header { padding: 10px 12px 6px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
         .card-header-left { display: flex; align-items: center; gap: 6px; }
         .drag-handle { color: var(--ink-muted); font-size: 1em; cursor: grab; padding: 2px 4px; border-radius: 4px; transition: color 0.15s, background 0.15s; line-height: 1; }
@@ -161,24 +121,34 @@
         .check-badge { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); display: none; align-items: center; justify-content: center; color: white; font-size: 0.6em; }
         .page-card.categorized .check-badge { display: flex; animation: pop-in 0.3s cubic-bezier(0.34,1.56,0.64,1); }
         @keyframes pop-in { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
-
         .page-preview-wrap { margin: 0 10px; background: var(--surface-2); border-radius: 8px; overflow: hidden; min-height: 150px; display: flex; align-items: center; justify-content: center; }
         .page-preview { width: 100%; display: block; border-radius: 6px; transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1); transform-origin: center center; }
         .page-loading-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--ink-muted); font-size: 0.78em; padding: 28px 0; }
         .mini-spinner { width: 26px; height: 26px; border: 3px solid var(--surface-3); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
         .rotation-controls { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 10px 2px; flex-wrap: wrap; }
         .rot-btn { width: 30px; height: 30px; border: 1.5px solid var(--surface-3); background: var(--surface-2); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1em; transition: all 0.15s; color: var(--ink-soft); flex-shrink: 0; }
         .rot-btn:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); transform: scale(1.12); }
         .rot-btn:active { transform: scale(0.95); }
         .rot-label { font-size: 0.68em; font-family: 'DM Mono', monospace; color: var(--ink-muted); min-width: 28px; text-align: center; }
-
         .card-footer { padding: 6px 10px 12px; }
         .category-select { width: 100%; padding: 9px 28px 9px 12px; border: 1.5px solid var(--surface-3); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.86em; color: var(--ink); background: var(--surface-2); cursor: pointer; transition: all 0.2s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7a8e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
         .category-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background-color: var(--surface); }
         .page-card.categorized .category-select { border-color: var(--accent); color: var(--accent); background-color: var(--accent-light); }
-
+        .page-preview-container { position: relative; width: 100%; line-height: 0; }
+        .annotation-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; z-index: 2; touch-action: none; }
+        .annot-toolbar { padding: 5px 6px; background: var(--surface-2); border-top: 1px solid var(--surface-3); display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+        .annot-tool { width: 24px; height: 24px; border: 1.5px solid var(--surface-3); background: var(--surface); border-radius: 5px; cursor: pointer; font-size: 0.8em; display: flex; align-items: center; justify-content: center; padding: 0; transition: all 0.15s; flex-shrink: 0; line-height: 1; font-family: 'DM Sans', sans-serif; color: var(--ink-soft); }
+        .annot-tool:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+        .annot-tool.active { border-color: var(--accent); background: var(--accent); color: white; }
+        .annot-color { width: 24px; height: 24px; border: 1.5px solid var(--surface-3); border-radius: 5px; padding: 1px; cursor: pointer; flex-shrink: 0; background: none; }
+        .annot-brush { width: 58px; height: 4px; flex-shrink: 0; cursor: pointer; accent-color: var(--accent); }
+        .annot-fontsize { width: 34px; border: 1.5px solid var(--surface-3); border-radius: 5px; font-size: 0.75em; padding: 2px 3px; flex-shrink: 0; text-align: center; font-family: 'DM Mono', monospace; color: var(--ink-soft); background: var(--surface); }
+        .annot-fontsize:focus { outline: none; border-color: var(--accent); }
+        .annot-sep { width: 1px; height: 18px; background: var(--surface-3); flex-shrink: 0; margin: 0 1px; }
+        .annot-action { width: 24px; height: 24px; border: 1.5px solid var(--surface-3); background: var(--surface); border-radius: 5px; cursor: pointer; font-size: 0.8em; padding: 0; transition: all 0.15s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); }
+        .annot-action:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
+        .annot-text-input { position: absolute; background: transparent; border: 1px dashed; outline: none; min-width: 60px; font-family: 'DM Sans', sans-serif; z-index: 10; padding: 1px 2px; }
         .action-bar { background: var(--surface); border: 1px solid var(--surface-3); border-radius: var(--radius); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: var(--shadow-lg); position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 64px); max-width: 1320px; z-index: 90; }
         .action-bar-info { font-size: 0.88em; color: var(--ink-muted); }
         .action-bar-buttons { display: flex; gap: 10px; }
@@ -188,13 +158,13 @@
         .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-secondary { background: var(--surface-2); color: var(--ink-soft); border: 1.5px solid var(--surface-3); }
         .btn-secondary:hover { background: var(--surface-3); color: var(--ink); }
-
+        /* Loading */
         .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.88); backdrop-filter: blur(6px); z-index: 200; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
         .loading-overlay.active { display: flex; }
         .loader-ring { width: 52px; height: 52px; border: 4px solid var(--surface-3); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
         .loader-text { font-weight: 600; color: var(--ink-soft); font-size: 1em; }
         .loader-sub { font-size: 0.8em; color: var(--ink-muted); font-family: 'DM Mono', monospace; }
-
+        /* Toast */
         .toast-container { position: fixed; bottom: 90px; right: 28px; z-index: 300; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: var(--surface); border: 1px solid var(--surface-3); border-radius: var(--radius); padding: 12px 16px; font-size: 0.86em; font-weight: 500; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; max-width: 340px; animation: slide-in 0.3s cubic-bezier(0.34,1.56,0.64,1); transition: opacity 0.25s, transform 0.25s; }
         .toast.hide { opacity: 0; transform: translateX(20px); }
@@ -206,887 +176,1187 @@
         .toast.error { border-color: #fca5a5; }
         .toast.warn .toast-icon { background: var(--warn-light); color: var(--warn); }
         .toast.warn { border-color: #fcd34d; }
-
-        /* ── Annotation overlay & toolbar ── */
-        .page-preview-container { position: relative; width: 100%; line-height: 0; }
-
-        .annotation-canvas {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            cursor: crosshair; z-index: 2; touch-action: none;
-        }
-
-        .annot-toolbar {
-            padding: 5px 6px; background: var(--surface-2);
-            border-top: 1px solid var(--surface-3);
-            display: flex; flex-wrap: wrap; gap: 3px; align-items: center;
-        }
-
-        .annot-tool {
-            width: 24px; height: 24px; border: 1.5px solid var(--surface-3);
-            background: var(--surface); border-radius: 5px; cursor: pointer;
-            font-size: 0.8em; display: flex; align-items: center; justify-content: center;
-            padding: 0; transition: all 0.15s; flex-shrink: 0; line-height: 1;
-            font-family: 'DM Sans', sans-serif; color: var(--ink-soft);
-        }
-        .annot-tool:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
-        .annot-tool.active { border-color: var(--accent); background: var(--accent); color: white; }
-
-        .annot-color {
-            width: 24px; height: 24px; border: 1.5px solid var(--surface-3);
-            border-radius: 5px; padding: 1px; cursor: pointer; flex-shrink: 0;
-            background: none;
-        }
-
-        .annot-brush { width: 58px; height: 4px; flex-shrink: 0; cursor: pointer; accent-color: var(--accent); }
-
-        .annot-fontsize {
-            width: 34px; border: 1.5px solid var(--surface-3); border-radius: 5px;
-            font-size: 0.75em; padding: 2px 3px; flex-shrink: 0; text-align: center;
-            font-family: 'DM Mono', monospace; color: var(--ink-soft); background: var(--surface);
-        }
-        .annot-fontsize:focus { outline: none; border-color: var(--accent); }
-
-        .annot-sep { width: 1px; height: 18px; background: var(--surface-3); flex-shrink: 0; margin: 0 1px; }
-
-        .annot-action {
-            width: 24px; height: 24px; border: 1.5px solid var(--surface-3);
-            background: var(--surface); border-radius: 5px; cursor: pointer;
-            font-size: 0.8em; padding: 0; transition: all 0.15s; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center; color: var(--ink-soft);
-        }
-        .annot-action:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
-
-        .annot-text-input {
-            position: absolute; background: transparent; border: 1px dashed;
-            outline: none; min-width: 60px; font-family: 'DM Sans', sans-serif;
-            z-index: 10; padding: 1px 2px;
-        }
-
-        @media (max-width: 640px) {
+        /* PDF Annotator View */
+        #view-annotator { display: none; position: fixed; inset: 0; z-index: 150; flex-direction: column; background: #1a1a2e; }
+        #view-annotator.active { display: flex; }
+        .annot-topbar { background: #16213e; border-bottom: 1px solid #0f3460; padding: 0 20px; height: 52px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 12px; }
+        .annot-topbar-left { display: flex; align-items: center; gap: 12px; overflow: hidden; }
+        .annot-brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95em; color: #e2e8f0; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .annot-brand .dot { width: 7px; height: 7px; background: #6366f1; border-radius: 50%; }
+        .annot-page-info { font-size: 0.82em; color: #94a3b8; font-family: 'DM Mono', monospace; background: #0f3460; padding: 4px 12px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+        .annot-nav-btn { width: 32px; height: 32px; background: #0f3460; border: 1px solid #1e4080; border-radius: 7px; color: #e2e8f0; font-size: 1.1em; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+        .annot-nav-btn:hover:not(:disabled) { background: #1e4080; }
+        .annot-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .annot-topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .annot-topbar-btn { padding: 7px 14px; border: 1.5px solid #1e4080; border-radius: 7px; background: transparent; color: #94a3b8; font-family: 'DM Sans', sans-serif; font-size: 0.82em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .annot-topbar-btn:hover { background: #0f3460; color: #e2e8f0; border-color: #4f46e5; }
+        .annot-topbar-btn.primary { background: #4f46e5; border-color: #4f46e5; color: white; }
+        .annot-topbar-btn.primary:hover { background: #4338ca; }
+        .annot-topbar-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .annot-workspace { display: flex; flex: 1; overflow: hidden; }
+        .annot-sidebar { width: 210px; background: #16213e; border-right: 1px solid #0f3460; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+        .annot-sidebar-section { padding: 12px 12px 10px; border-bottom: 1px solid #0f3460; }
+        .annot-sidebar-title { font-size: 0.68em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-bottom: 10px; }
+        .annot-tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .at-btn { aspect-ratio: 1; background: #0f3460; border: 1.5px solid #1e4080; border-radius: 7px; color: #94a3b8; font-size: 0.95em; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; position: relative; }
+        .at-btn:hover { background: #1e4080; color: #e2e8f0; }
+        .at-btn.active { background: #4f46e5; border-color: #6366f1; color: white; }
+        .at-tooltip { position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); background: #0a0a14; color: #e2e8f0; font-size: 0.7em; font-family: 'DM Sans', sans-serif; white-space: nowrap; padding: 3px 7px; border-radius: 4px; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 20; }
+        .at-btn:hover .at-tooltip { opacity: 1; }
+        .annot-color-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .annot-color-label { font-size: 0.78em; color: #94a3b8; white-space: nowrap; }
+        .at-color-picker { width: 30px; height: 30px; border: 2px solid #1e4080; border-radius: 7px; padding: 2px; cursor: pointer; background: none; flex-shrink: 0; }
+        .at-color-presets { display: flex; gap: 4px; flex-wrap: wrap; }
+        .at-color-preset { width: 18px; height: 18px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; transition: all 0.1s; }
+        .at-color-preset:hover, .at-color-preset.active { border-color: white; transform: scale(1.2); }
+        .annot-slider-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+        .annot-slider-label { font-size: 0.78em; color: #94a3b8; min-width: 28px; }
+        .at-slider { flex: 1; accent-color: #6366f1; cursor: pointer; }
+        .annot-slider-val { font-size: 0.73em; font-family: 'DM Mono', monospace; color: #64748b; min-width: 20px; text-align: right; }
+        .at-fontsize-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+        .at-fontsize-input { width: 48px; background: #0f3460; border: 1px solid #1e4080; border-radius: 6px; color: #e2e8f0; font-size: 0.78em; font-family: 'DM Mono', monospace; padding: 4px 5px; text-align: center; }
+        .at-fontsize-input:focus { outline: none; border-color: #6366f1; }
+        .stamp-btn { width: 100%; padding: 8px 10px; background: #0f3460; border: 1.5px solid #1e4080; border-radius: 7px; color: #94a3b8; font-family: 'DM Mono', monospace; font-size: 0.73em; font-weight: 700; cursor: pointer; letter-spacing: 0.05em; transition: all 0.15s; text-align: center; margin-bottom: 5px; }
+        .stamp-btn:last-child { margin-bottom: 0; }
+        .stamp-btn.stamp-approved { border-color: #059669; color: #34d399; }
+        .stamp-btn.stamp-approved:hover { background: #064e3b; }
+        .stamp-btn.stamp-rejected { border-color: #dc2626; color: #f87171; }
+        .stamp-btn.stamp-rejected:hover { background: #7f1d1d; }
+        .stamp-btn.stamp-confidential { border-color: #d97706; color: #fbbf24; }
+        .stamp-btn.stamp-confidential:hover { background: #78350f; }
+        .stamp-btn.placing { animation: stamp-pulse 0.7s infinite; }
+        @keyframes stamp-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        .action-btn { width: 100%; padding: 8px 10px; background: #0f3460; border: 1.5px solid #1e4080; border-radius: 7px; color: #94a3b8; font-family: 'DM Sans', sans-serif; font-size: 0.82em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+        .action-btn:last-child { margin-bottom: 0; }
+        .action-btn:hover { background: #1e4080; color: #e2e8f0; }
+        .action-btn.danger:hover { background: #7f1d1d; border-color: #dc2626; color: #f87171; }
+        .action-btn.placing { animation: stamp-pulse 0.7s infinite; }
+        .annot-canvas-area { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 28px; background: #0d1117; }
+        .annot-canvas-container { position: relative; line-height: 0; box-shadow: 0 0 60px rgba(0,0,0,0.7); border-radius: 3px; overflow: hidden; display: inline-block; }
+        #annotPageCanvas { display: block; max-width: 100%; }
+        #annotDrawCanvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; }
+        #annot-upload-section { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+        .annot-upload-zone { border: 2px dashed #1e4080; border-radius: 18px; background: #16213e; padding: 56px 48px; text-align: center; cursor: pointer; transition: all 0.25s; width: 100%; max-width: 480px; }
+        .annot-upload-zone:hover, .annot-upload-zone.dragover { border-color: #6366f1; background: #1a2040; box-shadow: 0 0 0 5px rgba(99,102,241,0.15); }
+        .annot-upload-icon { font-size: 2.8em; margin-bottom: 18px; }
+        .annot-upload-zone h3 { color: #e2e8f0; font-size: 1.1em; font-weight: 600; margin-bottom: 7px; }
+        .annot-upload-zone p { color: #64748b; font-size: 0.88em; }
+        .annot-size-note { display: inline-block; margin-top: 12px; font-size: 0.75em; font-family: 'DM Mono', monospace; color: #475569; background: #0f3460; padding: 3px 10px; border-radius: 20px; }
+        .annot-privacy { font-size: 0.8em; color: #475569; display: flex; align-items: center; gap: 6px; }
+        /* Signature modal */
+        .sig-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); z-index: 500; align-items: center; justify-content: center; }
+        .sig-modal.active { display: flex; }
+        .sig-dialog { background: #16213e; border: 1px solid #1e4080; border-radius: 16px; padding: 26px; width: 480px; max-width: 95vw; display: flex; flex-direction: column; gap: 14px; }
+        .sig-dialog h3 { color: #e2e8f0; font-size: 1.05em; font-weight: 700; }
+        .sig-pad-wrap { background: white; border-radius: 8px; overflow: hidden; }
+        #sigPadCanvas { display: block; width: 100%; height: 180px; cursor: crosshair; touch-action: none; }
+        .sig-hint { font-size: 0.78em; color: #475569; }
+        .sig-actions { display: flex; gap: 8px; justify-content: flex-end; }
+        .sig-btn { padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1e4080; background: transparent; color: #94a3b8; font-family: 'DM Sans', sans-serif; font-size: 0.86em; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+        .sig-btn:hover { background: #0f3460; color: #e2e8f0; }
+        .sig-btn.primary { background: #4f46e5; border-color: #4f46e5; color: white; }
+        .sig-btn.primary:hover { background: #4338ca; }
+        .sig-btn.clear-btn { border-color: #dc2626; color: #f87171; }
+        .sig-btn.clear-btn:hover { background: #7f1d1d; }
+        @media (max-width: 700px) {
             .main { padding: 20px 14px 140px; }
             .topbar { padding: 0 16px; }
             .action-bar { width: calc(100% - 28px); bottom: 12px; }
-            .upload-zone { padding: 48px 20px; }
+            .upload-zone { padding: 44px 20px; }
+            .landing-body { padding: 40px 16px 80px; }
+            .tool-cards { grid-template-columns: 1fr; }
+            .annot-sidebar { width: 170px; }
+            .annot-canvas-area { padding: 14px; }
+            .annot-topbar { padding: 0 12px; }
         }
     </style>
 </head>
 <body>
 
-<header class="topbar">
-    <div class="topbar-brand">
-        <div class="dot"></div>
-        PDF Separator
-    </div>
-    <div class="topbar-status">
-        <div class="status-dot"></div>
-        Client-side only
-    </div>
-</header>
-
-<div class="main">
-    <div id="uploadSection">
-        <div class="upload-hero">
-            <h1>Split your PDF<br>into <em>separate</em> documents</h1>
-            <p>Reorder, rotate, categorize — then download a clean ZIP.</p>
+<!-- LANDING -->
+<div id="view-landing">
+    <header class="topbar">
+        <div class="topbar-brand"><div class="dot"></div>GIGPDF Tools</div>
+        <div class="topbar-status"><div class="status-dot"></div>Client-side only</div>
+    </header>
+    <div class="landing-body">
+        <div class="landing-hero">
+            <h1>Your <em>PDF toolkit</em><br>in the browser</h1>
+            <p>Two powerful tools that run entirely in your browser &mdash; no uploads, no server required.</p>
         </div>
-        <div class="upload-zone" id="uploadArea">
-            <div class="upload-icon-wrap">📄</div>
-            <h3>Drop your PDF here</h3>
-            <p>or click to browse files</p>
-            <span class="size-note">Max 50 MB · PDF only</span>
-        </div>
-        <p class="privacy-note">🔒 All processing happens in your browser</p>
-        <input type="file" id="fileInput" accept=".pdf">
-    </div>
-
-    <div id="pagesSection">
-        <div class="pages-header">
-            <div class="pages-title">
-                <h2>Categorize your pages</h2>
-                <p id="pagesSummaryText">Loading…</p>
+        <div class="tool-cards">
+            <div class="tool-card" onclick="showView('separator')">
+                <div class="tool-card-icon">&#9986;&#65039;</div>
+                <h2>PDF Separator</h2>
+                <p>Split a PDF into categorized documents. Organize pages, rotate, annotate, and export a clean ZIP archive.</p>
+                <ul class="feature-list">
+                    <li>Upload any PDF file</li>
+                    <li>8 built-in page categories</li>
+                    <li>Drag &amp; drop page reorder</li>
+                    <li>Rotate &amp; flip individual pages</li>
+                    <li>Per-page drawing annotations</li>
+                    <li>Download as organized ZIP</li>
+                </ul>
+                <button class="tool-card-btn" onclick="event.stopPropagation();showView('separator')">Open PDF Separator &#8594;</button>
             </div>
-            <button class="btn btn-secondary" onclick="resetApp()">← New File</button>
-        </div>
-
-        <div class="progress-label">
-            <span id="progressLabelText">0 of 0 pages assigned</span>
-            <span id="progressLabelPct">0%</span>
-        </div>
-        <div class="progress-bar-wrap">
-            <div class="progress-bar-fill" id="progressFill"></div>
-        </div>
-
-        <div class="quick-assign-panel">
-            <div class="quick-assign-header">
-                <span class="quick-assign-icon">⚡</span>
-                <div>
-                    <div class="quick-assign-title">Assign all pages at once</div>
-                    <div class="quick-assign-sub">Useful when most pages belong to the same category.</div>
-                </div>
-            </div>
-            <div class="quick-assign-body">
-                <div class="quick-assign-step">
-                    <span class="step-badge">1</span>
-                    <span class="step-text">Pick a category</span>
-                    <select class="bulk-select" id="bulkCategory">
-                        <option value="">Choose…</option>
-                    </select>
-                </div>
-                <div class="quick-assign-arrow">→</div>
-                <div class="quick-assign-step">
-                    <span class="step-badge">2</span>
-                    <span class="step-text">Apply it</span>
-                    <button class="tbtn tbtn-primary" onclick="applyBulkCategory()">Assign to all unset pages</button>
-                </div>
-                <div class="quick-assign-divider"></div>
-                <button class="tbtn tbtn-ghost" onclick="clearAllCategories()">✕ Clear all</button>
+            <div class="tool-card" onclick="showView('annotator')">
+                <div class="tool-card-icon" style="background:#f5f3ff;">&#9997;&#65039;</div>
+                <h2>PDF Annotator</h2>
+                <p>Add drawings, text, stamps, and a digital signature to any PDF. Download with all markings embedded.</p>
+                <ul class="feature-list">
+                    <li>Pen, Line, Rectangle, Circle, Arrow</li>
+                    <li>Text with adjustable font size</li>
+                    <li>APPROVED / REJECTED / CONFIDENTIAL stamps</li>
+                    <li>Digital signature pad</li>
+                    <li>Color picker &amp; brush size control</li>
+                    <li>Download fully annotated PDF</li>
+                </ul>
+                <button class="tool-card-btn annotator-btn" onclick="event.stopPropagation();showView('annotator')">Open PDF Annotator &#8594;</button>
             </div>
         </div>
-
-        <div class="drag-hint">
-            ⠿ <strong>Drag</strong> to reorder · ↺↻ rotate · ↔↕ flip
-        </div>
-
-        <div class="uncategorized-banner" id="uncategorizedBanner">
-            ⚠️ <span id="uncategorizedText"></span>
-        </div>
-
-        <div class="pages-grid" id="pagesGrid"></div>
     </div>
 </div>
 
-<div class="action-bar" id="actionBar" style="display:none;">
-    <div class="action-bar-info" id="actionBarInfo">Assign categories to pages, then download.</div>
-    <div class="action-bar-buttons">
-        <button class="btn btn-primary" id="downloadBtn" onclick="downloadSeparatedPDFs()" disabled>
-            ⬇ Download ZIP
-        </button>
+<!-- SEPARATOR -->
+<div id="view-separator">
+    <header class="topbar">
+        <div class="topbar-brand" onclick="showView('landing')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showView('landing');}" role="button" tabindex="0" aria-label="Back to home"><div class="dot"></div>GIGPDF Tools</div>
+        <div class="topbar-status"><div class="status-dot"></div>PDF Separator</div>
+    </header>
+    <div class="main">
+        <div id="uploadSection">
+            <div class="upload-hero">
+                <h1>Split your PDF<br>into <em>separate</em> documents</h1>
+                <p>Reorder, rotate, categorize &mdash; then download a clean ZIP.</p>
+            </div>
+            <div class="upload-zone" id="uploadArea">
+                <div class="upload-icon-wrap">&#128196;</div>
+                <h3>Drop your PDF here</h3>
+                <p>or click to browse files</p>
+                <span class="size-note">Max 50 MB &middot; PDF only</span>
+            </div>
+            <p class="privacy-note">&#128274; All processing happens in your browser</p>
+            <input type="file" id="fileInput" accept=".pdf" style="display:none">
+        </div>
+        <div id="pagesSection">
+            <div class="pages-header">
+                <div class="pages-title">
+                    <h2>Categorize your pages</h2>
+                    <p id="pagesSummaryText">Loading&hellip;</p>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                    <button class="btn btn-secondary" onclick="showView('landing')">&#8592; Home</button>
+                    <button class="btn btn-secondary" onclick="resetSeparator()">&#8635; New File</button>
+                </div>
+            </div>
+            <div class="progress-label">
+                <span id="progressLabelText">0 of 0 pages assigned</span>
+                <span id="progressLabelPct">0%</span>
+            </div>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+            <div class="quick-assign-panel">
+                <div class="quick-assign-header">
+                    <span class="quick-assign-icon">&#9889;</span>
+                    <div>
+                        <div class="quick-assign-title">Assign all pages at once</div>
+                        <div class="quick-assign-sub">Useful when most pages belong to the same category.</div>
+                    </div>
+                </div>
+                <div class="quick-assign-body">
+                    <div class="quick-assign-step">
+                        <span class="step-badge">1</span>
+                        <span class="step-text">Pick a category</span>
+                        <select class="bulk-select" id="bulkCategory"><option value="">Choose&hellip;</option></select>
+                    </div>
+                    <div class="quick-assign-arrow">&#8594;</div>
+                    <div class="quick-assign-step">
+                        <span class="step-badge">2</span>
+                        <span class="step-text">Apply it</span>
+                        <button class="tbtn tbtn-primary" onclick="applyBulkCategory()">Assign to all unset pages</button>
+                    </div>
+                    <div class="quick-assign-divider"></div>
+                    <button class="tbtn tbtn-ghost" onclick="clearAllCategories()">&#10005; Clear all</button>
+                </div>
+            </div>
+            <div class="drag-hint">&#11835; <strong>Drag</strong> to reorder &middot; &#8634;&#8635; rotate &middot; &#8596;&#8597; flip</div>
+            <div class="uncategorized-banner" id="uncategorizedBanner">&#9888;&#65039; <span id="uncategorizedText"></span></div>
+            <div class="pages-grid" id="pagesGrid"></div>
+        </div>
+    </div>
+    <div class="action-bar" id="actionBar" style="display:none">
+        <div class="action-bar-info" id="actionBarInfo">Assign categories to pages, then download.</div>
+        <div class="action-bar-buttons">
+            <button class="btn btn-primary" id="downloadBtn" onclick="downloadSeparatedPDFs()" disabled>&#11015; Download ZIP</button>
+        </div>
     </div>
 </div>
 
+<!-- ANNOTATOR -->
+<div id="view-annotator">
+    <div class="annot-topbar">
+        <div class="annot-topbar-left">
+            <div class="annot-brand" onclick="showView('landing')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showView('landing');}" role="button" tabindex="0" aria-label="Back to home"><div class="dot"></div>GIGPDF Tools</div>
+            <div class="annot-page-info" id="annotPageInfo">No file loaded</div>
+            <button class="annot-nav-btn" id="annotPrevBtn" onclick="annotGoPage(-1)" disabled aria-label="Previous page">&#8249;</button>
+            <button class="annot-nav-btn" id="annotNextBtn" onclick="annotGoPage(1)"  disabled aria-label="Next page">&#8250;</button>
+        </div>
+        <div class="annot-topbar-right">
+            <button class="annot-topbar-btn" onclick="annotNewFile()">&#128194; New File</button>
+            <button class="annot-topbar-btn primary" id="annotDownloadBtn" onclick="downloadAnnotatedPDF()" disabled>&#11015; Download PDF</button>
+        </div>
+    </div>
+    <div class="annot-workspace">
+        <div class="annot-sidebar">
+            <div class="annot-sidebar-section">
+                <div class="annot-sidebar-title">Drawing Tools</div>
+                <div class="annot-tool-grid">
+                    <button class="at-btn active" data-tool="pen"    onclick="setAnnotTool('pen')"    aria-label="Pen">&#9999;&#65039;<span class="at-tooltip">Pen</span></button>
+                    <button class="at-btn"         data-tool="line"   onclick="setAnnotTool('line')"   aria-label="Line">&#9585;<span class="at-tooltip">Line</span></button>
+                    <button class="at-btn"         data-tool="rect"   onclick="setAnnotTool('rect')"   aria-label="Rectangle">&#9645;<span class="at-tooltip">Rectangle</span></button>
+                    <button class="at-btn"         data-tool="circle" onclick="setAnnotTool('circle')" aria-label="Circle">&#9711;<span class="at-tooltip">Circle</span></button>
+                    <button class="at-btn"         data-tool="arrow"  onclick="setAnnotTool('arrow')"  aria-label="Arrow">&#8599;<span class="at-tooltip">Arrow</span></button>
+                    <button class="at-btn"         data-tool="text"   onclick="setAnnotTool('text')"   aria-label="Text">T<span class="at-tooltip">Text</span></button>
+                </div>
+            </div>
+            <div class="annot-sidebar-section">
+                <div class="annot-sidebar-title">Color &amp; Size</div>
+                <div class="annot-color-row">
+                    <span class="annot-color-label">Color</span>
+                    <input type="color" class="at-color-picker" id="annotColor" value="#ff0000" aria-label="Annotation color">
+                </div>
+                <div class="at-color-presets" id="colorPresets">
+                    <div class="at-color-preset active" style="background:#ff0000" data-color="#ff0000" onclick="setAnnotColor('#ff0000')" title="Red"></div>
+                    <div class="at-color-preset"        style="background:#ff6600" data-color="#ff6600" onclick="setAnnotColor('#ff6600')" title="Orange"></div>
+                    <div class="at-color-preset"        style="background:#ffd700" data-color="#ffd700" onclick="setAnnotColor('#ffd700')" title="Yellow"></div>
+                    <div class="at-color-preset"        style="background:#00cc44" data-color="#00cc44" onclick="setAnnotColor('#00cc44')" title="Green"></div>
+                    <div class="at-color-preset"        style="background:#0088ff" data-color="#0088ff" onclick="setAnnotColor('#0088ff')" title="Blue"></div>
+                    <div class="at-color-preset"        style="background:#cc00cc" data-color="#cc00cc" onclick="setAnnotColor('#cc00cc')" title="Purple"></div>
+                    <div class="at-color-preset"        style="background:#000000" data-color="#000000" onclick="setAnnotColor('#000000')" title="Black"></div>
+                    <div class="at-color-preset"        style="background:#ffffff;outline:1px solid #334155" data-color="#ffffff" onclick="setAnnotColor('#ffffff')" title="White"></div>
+                </div>
+                <div class="annot-slider-row">
+                    <span class="annot-slider-label">Size</span>
+                    <input type="range" class="at-slider" id="annotBrushSize" min="1" max="30" value="3" aria-label="Brush size">
+                    <span class="annot-slider-val" id="annotBrushSizeVal">3</span>
+                </div>
+                <div class="at-fontsize-row" id="annotFontsizeRow" style="display:none">
+                    <span class="annot-color-label">Font</span>
+                    <input type="number" class="at-fontsize-input" id="annotFontSize" min="8" max="120" value="24" aria-label="Font size">
+                    <span class="annot-color-label">px</span>
+                </div>
+            </div>
+            <div class="annot-sidebar-section">
+                <div class="annot-sidebar-title">Stamps</div>
+                <button class="stamp-btn stamp-approved"     id="stampApproved"     onclick="activateStamp('APPROVED')"     aria-label="Place APPROVED stamp">&#10004; APPROVED</button>
+                <button class="stamp-btn stamp-rejected"     id="stampRejected"     onclick="activateStamp('REJECTED')"     aria-label="Place REJECTED stamp">&#10006; REJECTED</button>
+                <button class="stamp-btn stamp-confidential" id="stampConfidential" onclick="activateStamp('CONFIDENTIAL')" aria-label="Place CONFIDENTIAL stamp">&#128274; CONFIDENTIAL</button>
+            </div>
+            <div class="annot-sidebar-section">
+                <div class="annot-sidebar-title">Actions</div>
+                <button class="action-btn" id="sigBtn" onclick="openSignaturePad()" aria-label="Add digital signature">&#128394; Signature</button>
+                <button class="action-btn" onclick="undoAnnot()"        aria-label="Undo last stroke">&#8617; Undo</button>
+                <button class="action-btn danger" onclick="clearCurrentAnnot()" aria-label="Clear page">&#10005; Clear Page</button>
+            </div>
+        </div>
+        <div class="annot-canvas-area" id="annotCanvasArea">
+            <div id="annot-upload-section">
+                <div class="annot-upload-zone" id="annotUploadArea">
+                    <div class="annot-upload-icon">&#128196;</div>
+                    <h3>Drop your PDF here</h3>
+                    <p>or click to browse files</p>
+                    <span class="annot-size-note">Max 50 MB &middot; PDF only</span>
+                </div>
+                <p class="annot-privacy">&#128274; All processing happens in your browser</p>
+                <input type="file" id="annotFileInput" accept=".pdf" style="display:none">
+            </div>
+            <div id="annot-working-section" style="display:none">
+                <div class="annot-canvas-container" id="annotCanvasContainer">
+                    <canvas id="annotPageCanvas"></canvas>
+                    <canvas id="annotDrawCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SIGNATURE MODAL -->
+<div class="sig-modal" id="sigModal" role="dialog" aria-modal="true" aria-labelledby="sigModalTitle">
+    <div class="sig-dialog">
+        <h3 id="sigModalTitle">Draw Your Signature</h3>
+        <div class="sig-pad-wrap"><canvas id="sigPadCanvas" width="428" height="180"></canvas></div>
+        <p class="sig-hint">Draw your signature above, then click &ldquo;Place on Page&rdquo; and click where you want it.</p>
+        <div class="sig-actions">
+            <button class="sig-btn clear-btn" onclick="clearSigPad()">Clear</button>
+            <button class="sig-btn"           onclick="closeSigModal()">Cancel</button>
+            <button class="sig-btn primary"   onclick="confirmSig()">Place on Page</button>
+        </div>
+    </div>
+</div>
+
+<!-- SHARED -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loader-ring"></div>
-    <div class="loader-text" id="loaderText">Processing…</div>
-    <div class="loader-sub" id="loaderSub"></div>
+    <div class="loader-text" id="loaderText">Processing&hellip;</div>
+    <div class="loader-sub"  id="loaderSub"></div>
 </div>
-
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let originalFileBlob = null;
-let pdfDoc = null;
-let totalPages = 0;
-let pageOrder = [];
-const pageCategories = {};
-const pageRotations = {};
-const pageFlips = {};
-const thumbnailCache = {};
+/* === VIEW MANAGEMENT === */
+function showView(view) {
+    document.getElementById('view-landing').classList.remove('active');
+    document.getElementById('view-separator').style.display = 'none';
+    document.getElementById('view-annotator').classList.remove('active');
+    document.body.style.overflow = '';
+    if (view === 'landing') {
+        document.getElementById('view-landing').classList.add('active');
+    } else if (view === 'separator') {
+        document.getElementById('view-separator').style.display = 'block';
+    } else if (view === 'annotator') {
+        document.getElementById('view-annotator').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+document.addEventListener('DOMContentLoaded', () => showView('landing'));
 
-const CATEGORIES = [
-    { value: 'police-report', label: 'Police Report' },
-    { value: 'vehicle-reg', label: 'Vehicle Registration' },
-    { value: 'driver-license', label: 'Driver License' },
-    { value: 'civil-id', label: 'Civil ID' },
-    { value: 'incident-report', label: 'Incident Report' },
+/* === SHARED UTILS === */
+function showLoading(text, sub) {
+    document.getElementById('loaderText').textContent = text;
+    document.getElementById('loaderSub').textContent  = sub || '';
+    document.getElementById('loadingOverlay').classList.add('active');
+}
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
+function showToast(msg, type) {
+    type = type || 'success';
+    var icons = { success: '\u2713', error: '\u2715', warn: '!' };
+    var t = document.createElement('div');
+    t.className = 'toast ' + type;
+    var icon = document.createElement('div'); icon.className = 'toast-icon'; icon.textContent = icons[type] || '\u2022';
+    var span = document.createElement('span'); span.textContent = msg;
+    t.appendChild(icon); t.appendChild(span);
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(function() { t.classList.add('hide'); setTimeout(function() { t.remove(); }, 280); }, 4000);
+}
+
+/* === PDF SEPARATOR === */
+var sepFileBlob = null, sepPdfDoc = null, sepTotalPages = 0, sepPageOrder = [];
+var sepPageCategories = {}, sepPageRotations = {}, sepPageFlips = {};
+var sepThumbnailCache = {}, sepPageAnnotHistory = {};
+
+var SEP_CATEGORIES = [
+    { value: 'police-report',     label: 'Police Report' },
+    { value: 'vehicle-reg',       label: 'Vehicle Registration' },
+    { value: 'driver-license',    label: 'Driver License' },
+    { value: 'civil-id',          label: 'Civil ID' },
+    { value: 'incident-report',   label: 'Incident Report' },
     { value: 'garage-estimation', label: 'Garage Estimation' },
-    { value: 'insurance-policy', label: 'Insurance Policy' },
-    { value: 'other', label: 'Other' }
+    { value: 'insurance-policy',  label: 'Insurance Policy' },
+    { value: 'other',             label: 'Other' }
 ];
 
-const bulkSelect = document.getElementById('bulkCategory');
-CATEGORIES.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c.value;
-    o.textContent = c.label;
-    bulkSelect.appendChild(o);
+var bulkCatEl = document.getElementById('bulkCategory');
+SEP_CATEGORIES.forEach(function(c) {
+    var o = document.createElement('option'); o.value = c.value; o.textContent = c.label;
+    bulkCatEl.appendChild(o);
 });
 
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
+var uploadArea = document.getElementById('uploadArea');
+var fileInput  = document.getElementById('fileInput');
+uploadArea.addEventListener('click', function() { fileInput.click(); });
+uploadArea.addEventListener('dragover',  function(e) { e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave', function() { uploadArea.classList.remove('dragover'); });
+uploadArea.addEventListener('drop', function(e) { e.preventDefault(); uploadArea.classList.remove('dragover'); if (e.dataTransfer.files[0]) sepLoad(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', function(e) { if (e.target.files[0]) sepLoad(e.target.files[0]); });
 
-uploadArea.addEventListener('click', () => fileInput.click());
-uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
-uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover')); 
-uploadArea.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadArea.classList.remove('dragover');
-    if (e.dataTransfer.files[0]) validateAndLoad(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', e => { if (e.target.files[0]) validateAndLoad(e.target.files[0]); });
-
-function validateAndLoad(file) {
+function sepLoad(file) {
     if (file.type !== 'application/pdf') { showToast('Please upload a valid PDF file.', 'error'); return; }
-    if (file.size > 50 * 1024 * 1024) { showToast('File exceeds 50 MB limit.', 'error'); return; }
-    originalFileBlob = file;
-    showLoading('Loading PDF…', file.name);
-    file.arrayBuffer().then(buf => {
-        pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise.then(doc => {
-            pdfDoc = doc;
-            totalPages = doc.numPages;
-            pageOrder = Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (file.size > 50 * 1024 * 1024)   { showToast('File exceeds 50 MB limit.', 'error'); return; }
+    sepFileBlob = file;
+    showLoading('Loading PDF\u2026', file.name);
+    file.arrayBuffer().then(function(buf) {
+        pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise.then(function(doc) {
+            sepPdfDoc = doc; sepTotalPages = doc.numPages;
+            sepPageOrder = Array.from({ length: sepTotalPages }, function(_, i) { return i + 1; });
             document.getElementById('uploadSection').style.display = 'none';
-            document.getElementById('pagesSection').classList.add('active');
-            document.getElementById('actionBar').style.display = 'flex';
-            document.getElementById('pagesSummaryText').textContent = `${totalPages} page${totalPages !== 1 ? 's' : ''} ready to organize`;
-            buildGrid();
-            hideLoading();
-            updateProgress();
-        }).catch(() => { hideLoading(); showToast('Could not read PDF.', 'error'); });
+            document.getElementById('pagesSection').style.display  = 'block';
+            document.getElementById('actionBar').style.display     = 'flex';
+            document.getElementById('pagesSummaryText').textContent =
+                sepTotalPages + ' page' + (sepTotalPages !== 1 ? 's' : '') + ' ready to organize';
+            sepBuildGrid(); hideLoading(); sepUpdateProgress();
+        }).catch(function() { hideLoading(); showToast('Could not read PDF.', 'error'); });
     });
 }
 
-function buildGrid() {
-    const grid = document.getElementById('pagesGrid');
-    grid.innerHTML = '';
-    pageOrder.forEach(p => grid.appendChild(makeCard(p)));
-    renderThumbnailsBatched();
-    initDragDrop();
+function sepBuildGrid() {
+    var grid = document.getElementById('pagesGrid'); grid.innerHTML = '';
+    sepPageOrder.forEach(function(p) { grid.appendChild(sepMakeCard(p)); });
+    sepRenderThumbsBatched(); sepInitDragDrop();
 }
 
-function makeCard(origPage) {
-    const card = document.createElement('div');
-    card.className = 'page-card' + (pageCategories[origPage] ? ' categorized' : '');
-    card.dataset.page = origPage;
-    card.draggable = true;
-
-    const opts = CATEGORIES.map(c => `<option value="${c.value}"${pageCategories[origPage] === c.value ? ' selected' : ''}>${c.label}</option>`).join('');
-
-    card.innerHTML = `
-        <div class="card-header">
-            <div class="card-header-left">
-                <span class="drag-handle">⠿</span>
-                <span class="page-label">Page ${origPage}</span>
-            </div>
-            <div class="check-badge">✓</div>
-        </div>
-        <div class="page-preview-wrap" id="preview-wrap-${origPage}">
-            <div class="page-loading-placeholder">
-                <div class="mini-spinner"></div>
-                <span>Rendering…</span>
-            </div>
-        </div>
-        <div class="annot-toolbar" id="annot-toolbar-${origPage}">
-            <button class="annot-tool active" data-tool="pen" title="Free Draw" aria-label="Free Draw">✏</button>
-            <button class="annot-tool" data-tool="line" title="Straight Line" aria-label="Straight Line">╱</button>
-            <button class="annot-tool" data-tool="rect" title="Rectangle" aria-label="Rectangle">▭</button>
-            <button class="annot-tool" data-tool="circle" title="Circle" aria-label="Circle">◯</button>
-            <button class="annot-tool" data-tool="arrow" title="Arrow" aria-label="Arrow">↗</button>
-            <button class="annot-tool" data-tool="text" title="Text" aria-label="Text">T</button>
-            <div class="annot-sep"></div>
-            <input type="color" class="annot-color" value="#ff0000" title="Color" aria-label="Annotation color">
-            <input type="range" class="annot-brush" min="1" max="20" value="3" title="Brush size" aria-label="Brush size">
-            <input type="number" class="annot-fontsize" min="8" max="72" value="16" title="Font size (text tool)" aria-label="Font size">
-            <div class="annot-sep"></div>
-            <button class="annot-action" data-action="undo" title="Undo last stroke" aria-label="Undo last stroke">↩</button>
-            <button class="annot-action" data-action="clear" title="Clear all annotations" aria-label="Clear all annotations">✕</button>
-        </div>
-        <div class="rotation-controls">
-            <button class="rot-btn" onclick="event.stopPropagation();rotateImg(${origPage},-90)">↺</button>
-            <button class="rot-btn" onclick="event.stopPropagation();rotateImg(${origPage}, 90)">↻</button>
-            <button class="rot-btn" onclick="event.stopPropagation();flipImg(${origPage},'h')">↔</button>
-            <button class="rot-btn" onclick="event.stopPropagation();flipImg(${origPage},'v')">↕</button>
-            <span class="rot-label" id="rot-label-${origPage}">${pageRotations[origPage]||0}°</span>
-        </div>
-        <div class="card-footer">
-            <select class="category-select" data-page="${origPage}">
-                <option value="">Select category…</option>
-                ${opts}
-            </select>
-        </div>
-    `;
-
-    card.querySelector('select').addEventListener('change', e => setCategory(origPage, e.target.value));
-
-    initAnnotToolbar(origPage, card);
-
-    if (thumbnailCache[origPage]) {
-        injectThumbnail(origPage, thumbnailCache[origPage]);
-    }
-
+function sepMakeCard(origPage) {
+    var card = document.createElement('div');
+    card.className = 'page-card' + (sepPageCategories[origPage] ? ' categorized' : '');
+    card.dataset.page = origPage; card.draggable = true;
+    var opts = SEP_CATEGORIES.map(function(c) {
+        return '<option value="' + c.value + '"' + (sepPageCategories[origPage] === c.value ? ' selected' : '') + '>' + c.label + '</option>';
+    }).join('');
+    card.innerHTML =
+        '<div class="card-header">' +
+          '<div class="card-header-left"><span class="drag-handle" aria-hidden="true">\u2840</span>' +
+          '<span class="page-label">Page ' + origPage + '</span></div>' +
+          '<div class="check-badge" aria-hidden="true">\u2713</div></div>' +
+        '<div class="page-preview-wrap" id="sep-pw-' + origPage + '">' +
+          '<div class="page-loading-placeholder"><div class="mini-spinner"></div><span>Rendering\u2026</span></div></div>' +
+        '<div class="annot-toolbar" id="sep-tb-' + origPage + '">' +
+          '<button class="annot-tool active" data-tool="pen"    title="Free Draw" aria-label="Free Draw">\u270f</button>' +
+          '<button class="annot-tool"        data-tool="line"   title="Line"      aria-label="Line">\u2571</button>' +
+          '<button class="annot-tool"        data-tool="rect"   title="Rectangle" aria-label="Rectangle">\u25ad</button>' +
+          '<button class="annot-tool"        data-tool="circle" title="Circle"    aria-label="Circle">\u25ef</button>' +
+          '<button class="annot-tool"        data-tool="arrow"  title="Arrow"     aria-label="Arrow">\u2197</button>' +
+          '<button class="annot-tool"        data-tool="text"   title="Text"      aria-label="Text">T</button>' +
+          '<div class="annot-sep"></div>' +
+          '<input type="color"  class="annot-color"    value="#ff0000" title="Color"      aria-label="Color">' +
+          '<input type="range"  class="annot-brush"    min="1" max="20" value="3" title="Brush size" aria-label="Brush size">' +
+          '<input type="number" class="annot-fontsize" min="8" max="72" value="16" title="Font size" aria-label="Font size" style="display:none">' +
+          '<div class="annot-sep"></div>' +
+          '<button class="annot-action" data-action="undo"  title="Undo"  aria-label="Undo">\u21a9</button>' +
+          '<button class="annot-action" data-action="clear" title="Clear" aria-label="Clear">\u2715</button></div>' +
+        '<div class="rotation-controls">' +
+          '<button class="rot-btn" onclick="event.stopPropagation();sepRotate(' + origPage + ',-90)" aria-label="Rotate left">\u21ba</button>' +
+          '<button class="rot-btn" onclick="event.stopPropagation();sepRotate(' + origPage + ', 90)" aria-label="Rotate right">\u21bb</button>' +
+          '<button class="rot-btn" onclick="event.stopPropagation();sepFlip(' + origPage + ',\'h\')"  aria-label="Flip horizontal">\u2194</button>' +
+          '<button class="rot-btn" onclick="event.stopPropagation();sepFlip(' + origPage + ',\'v\')"  aria-label="Flip vertical">\u2195</button>' +
+          '<span class="rot-label" id="sep-rl-' + origPage + '">' + (sepPageRotations[origPage] || 0) + '\u00b0</span></div>' +
+        '<div class="card-footer">' +
+          '<select class="category-select" data-page="' + origPage + '" aria-label="Category for page ' + origPage + '">' +
+          '<option value="">Select category\u2026</option>' + opts + '</select></div>';
+    card.querySelector('select').addEventListener('change', function(e) { sepSetCategory(origPage, e.target.value); });
+    sepInitCardAnnotToolbar(origPage, card);
+    if (sepThumbnailCache[origPage]) sepInjectThumb(origPage, sepThumbnailCache[origPage]);
     return card;
 }
 
-async function renderThumbnailsBatched() {
-    const needed = pageOrder.filter(p => !thumbnailCache[p]);
-    const BATCH = 4;
-    for (let i = 0; i < needed.length; i += BATCH) {
-        await Promise.all(needed.slice(i, i + BATCH).map(p => renderThumbnail(p)));
-    }
+async function sepRenderThumbsBatched() {
+    var needed = sepPageOrder.filter(function(p) { return !sepThumbnailCache[p]; });
+    for (var i = 0; i < needed.length; i += 4)
+        await Promise.all(needed.slice(i, i + 4).map(function(p) { return sepRenderThumb(p); }));
 }
-
-async function renderThumbnail(pageNum) {
-    if (thumbnailCache[pageNum]) { injectThumbnail(pageNum, thumbnailCache[pageNum]); return; }
+async function sepRenderThumb(pn) {
+    if (sepThumbnailCache[pn]) { sepInjectThumb(pn, sepThumbnailCache[pn]); return; }
     try {
-        const page = await pdfDoc.getPage(pageNum);
-        const viewport = page.getViewport({ scale: 0.6 });
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-        const dataURL = canvas.toDataURL('image/jpeg', 0.72);
-        thumbnailCache[pageNum] = dataURL;
-        injectThumbnail(pageNum, dataURL);
+        var page = await sepPdfDoc.getPage(pn);
+        var vp = page.getViewport({ scale: 0.6 });
+        var c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+        await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+        var url = c.toDataURL('image/jpeg', 0.72);
+        sepThumbnailCache[pn] = url; sepInjectThumb(pn, url);
     } catch (_) {}
 }
-
-function injectThumbnail(pageNum, dataURL) {
-    const wrap = document.getElementById(`preview-wrap-${pageNum}`);
-    if (!wrap) return;
-
-    const container = document.createElement('div');
-    container.className = 'page-preview-container';
-
-    const img = document.createElement('img');
-    img.src = dataURL;
-    img.className = 'page-preview';
-    img.alt = `Page ${pageNum}`;
-    img.id = `img-${pageNum}`;
-
-    const canvas = document.createElement('canvas');
-    canvas.className = 'annotation-canvas';
-    canvas.id = `annot-canvas-${pageNum}`;
-
-    container.appendChild(img);
-    container.appendChild(canvas);
-    wrap.innerHTML = '';
-    wrap.appendChild(container);
-
-    applyTransform(pageNum);
-
-    const doInit = () => initAnnotCanvas(pageNum, canvas, img);
-    if (img.complete && img.naturalWidth) doInit();
-    else img.addEventListener('load', doInit);
+function sepInjectThumb(pn, dataURL) {
+    var wrap = document.getElementById('sep-pw-' + pn); if (!wrap) return;
+    var con = document.createElement('div'); con.className = 'page-preview-container';
+    var img = document.createElement('img');
+    img.src = dataURL; img.className = 'page-preview'; img.alt = 'Page ' + pn; img.id = 'sep-img-' + pn;
+    var cv = document.createElement('canvas'); cv.className = 'annotation-canvas'; cv.id = 'sep-ac-' + pn;
+    con.appendChild(img); con.appendChild(cv);
+    wrap.innerHTML = ''; wrap.appendChild(con);
+    sepApplyTransform(pn);
+    var init = function() { sepInitCardAnnotCanvas(pn, cv, img); };
+    if (img.complete && img.naturalWidth) init(); else img.addEventListener('load', init);
 }
 
-function rotateImg(pageNum, delta) {
-    pageRotations[pageNum] = ((pageRotations[pageNum] || 0) + delta + 360) % 360;
-    applyTransform(pageNum);
-    const lbl = document.getElementById(`rot-label-${pageNum}`);
-    if (lbl) lbl.textContent = pageRotations[pageNum] + '°';
+function sepRotate(pn, delta) {
+    sepPageRotations[pn] = ((sepPageRotations[pn] || 0) + delta + 360) % 360;
+    sepApplyTransform(pn);
+    var lbl = document.getElementById('sep-rl-' + pn);
+    if (lbl) lbl.textContent = sepPageRotations[pn] + '\u00b0';
 }
-
-function flipImg(pageNum, axis) {
-    if (!pageFlips[pageNum]) pageFlips[pageNum] = { h: false, v: false };
-    pageFlips[pageNum][axis] = !pageFlips[pageNum][axis];
-    applyTransform(pageNum);
+function sepFlip(pn, axis) {
+    if (!sepPageFlips[pn]) sepPageFlips[pn] = { h: false, v: false };
+    sepPageFlips[pn][axis] = !sepPageFlips[pn][axis]; sepApplyTransform(pn);
 }
-
-function applyTransform(pageNum) {
-    const img = document.getElementById(`img-${pageNum}`);
-    if (!img) return;
-    const rot = pageRotations[pageNum] || 0;
-    const flp = pageFlips[pageNum] || { h: false, v: false };
-    let t = '';
-    if (rot) t += `rotate(${rot}deg) `;
+function sepApplyTransform(pn) {
+    var img = document.getElementById('sep-img-' + pn); if (!img) return;
+    var rot = sepPageRotations[pn] || 0, flp = sepPageFlips[pn] || { h: false, v: false };
+    var t = '';
+    if (rot)   t += 'rotate(' + rot + 'deg) ';
     if (flp.h) t += 'scaleX(-1) ';
     if (flp.v) t += 'scaleY(-1) ';
     img.style.transform = t.trim() || 'none';
-    const sideways = rot === 90 || rot === 270;
-    img.style.maxWidth = sideways ? '68%' : '100%';
-    img.style.maxHeight = sideways ? '68%' : 'none';
+    var sideways = rot === 90 || rot === 270;
+    img.style.maxWidth = sideways ? '68%' : '100%'; img.style.maxHeight = sideways ? '68%' : 'none';
 }
 
-let dragSrcPage = null;
-
-function initDragDrop() {
-    const grid = document.getElementById('pagesGrid');
-    if (grid.dataset.dndInit) return;
-    grid.dataset.dndInit = '1';
-
-    grid.addEventListener('dragstart', e => {
-        const card = e.target.closest('.page-card');
-        if (!card) return;
-        dragSrcPage = parseInt(card.dataset.page);
-        requestAnimationFrame(() => card.classList.add('dragging'));
+var sepDragSrc = null;
+function sepInitDragDrop() {
+    var grid = document.getElementById('pagesGrid');
+    if (grid.dataset.dndInit) return; grid.dataset.dndInit = '1';
+    grid.addEventListener('dragstart', function(e) {
+        var card = e.target.closest('.page-card'); if (!card) return;
+        sepDragSrc = parseInt(card.dataset.page);
+        requestAnimationFrame(function() { card.classList.add('dragging'); });
         e.dataTransfer.effectAllowed = 'move';
     });
-
-    grid.addEventListener('dragend', () => {
-        grid.querySelectorAll('.page-card').forEach(c => c.classList.remove('dragging', 'drag-over'));
-        dragSrcPage = null;
+    grid.addEventListener('dragend', function() {
+        grid.querySelectorAll('.page-card').forEach(function(c) { c.classList.remove('dragging','drag-over'); });
+        sepDragSrc = null;
     });
-
-    grid.addEventListener('dragover', e => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        const card = e.target.closest('.page-card');
-        if (!card) return;
-        const targetPage = parseInt(card.dataset.page);
-        if (targetPage === dragSrcPage) return;
-        grid.querySelectorAll('.page-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+    grid.addEventListener('dragover', function(e) {
+        e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+        var card = e.target.closest('.page-card'); if (!card) return;
+        var tp = parseInt(card.dataset.page); if (tp === sepDragSrc) return;
+        grid.querySelectorAll('.page-card.drag-over').forEach(function(c) { c.classList.remove('drag-over'); });
         card.classList.add('drag-over');
     });
-
-    grid.addEventListener('dragleave', e => {
-        const card = e.target.closest('.page-card');
-        if (card && !card.contains(e.relatedTarget)) {
-            card.classList.remove('drag-over');
-        }
+    grid.addEventListener('dragleave', function(e) {
+        var card = e.target.closest('.page-card');
+        if (card && !card.contains(e.relatedTarget)) card.classList.remove('drag-over');
     });
-
-    grid.addEventListener('drop', e => {
+    grid.addEventListener('drop', function(e) {
         e.preventDefault();
-        const targetCard = e.target.closest('.page-card');
-        if (!targetCard || dragSrcPage === null) return;
-        const targetPage = parseInt(targetCard.dataset.page);
-        if (targetPage === dragSrcPage) return;
-
-        const si = pageOrder.indexOf(dragSrcPage);
-        const ti = pageOrder.indexOf(targetPage);
-        pageOrder.splice(si, 1);
-        pageOrder.splice(ti, 0, dragSrcPage);
-
-        const srcCard = grid.querySelector(`.page-card[data-page="${dragSrcPage}"]`);
-        if (srcCard) {
-            if (si < ti) targetCard.after(srcCard);
-            else targetCard.before(srcCard);
-        }
+        var tc = e.target.closest('.page-card'); if (!tc || sepDragSrc === null) return;
+        var tp = parseInt(tc.dataset.page); if (tp === sepDragSrc) return;
+        var si = sepPageOrder.indexOf(sepDragSrc), ti = sepPageOrder.indexOf(tp);
+        sepPageOrder.splice(si, 1); sepPageOrder.splice(ti, 0, sepDragSrc);
+        var sc = grid.querySelector('.page-card[data-page="' + sepDragSrc + '"]');
+        if (sc) { if (si < ti) tc.after(sc); else tc.before(sc); }
     });
 }
 
-function setCategory(pageNum, value) {
-    if (!value) delete pageCategories[pageNum];
-    else pageCategories[pageNum] = value;
-    const card = document.querySelector(`.page-card[data-page="${pageNum}"]`);
-    if (card) card.classList.toggle('categorized', !!value);
-    updateProgress();
+function sepSetCategory(pn, val) {
+    if (!val) delete sepPageCategories[pn]; else sepPageCategories[pn] = val;
+    var card = document.querySelector('.page-card[data-page="' + pn + '"]');
+    if (card) card.classList.toggle('categorized', !!val);
+    sepUpdateProgress();
 }
-
 function applyBulkCategory() {
-    const val = bulkSelect.value;
+    var val = document.getElementById('bulkCategory').value;
     if (!val) { showToast('Choose a category first.', 'warn'); return; }
-    let applied = 0;
-    for (let i = 1; i <= totalPages; i++) {
-        if (!pageCategories[i]) {
-            pageCategories[i] = val;
-            const card = document.querySelector(`.page-card[data-page="${i}"]`);
+    var n = 0;
+    for (var i = 1; i <= sepTotalPages; i++) {
+        if (!sepPageCategories[i]) {
+            sepPageCategories[i] = val;
+            var card = document.querySelector('.page-card[data-page="' + i + '"]');
             if (card) { card.querySelector('select').value = val; card.classList.add('categorized'); }
-            applied++;
+            n++;
         }
     }
-    if (applied === 0) showToast('All pages already categorized.', 'warn');
-    else showToast(`Applied to ${applied} page${applied!==1?'s':''}.`, 'success');
-    updateProgress();
+    if (n === 0) showToast('All pages already categorized.', 'warn');
+    else showToast('Applied to ' + n + ' page' + (n !== 1 ? 's' : '') + '.', 'success');
+    sepUpdateProgress();
 }
-
 function clearAllCategories() {
-    for (let i = 1; i <= totalPages; i++) {
-        delete pageCategories[i];
-        const card = document.querySelector(`.page-card[data-page="${i}"]`);
+    for (var i = 1; i <= sepTotalPages; i++) {
+        delete sepPageCategories[i];
+        var card = document.querySelector('.page-card[data-page="' + i + '"]');
         if (card) { card.querySelector('select').value = ''; card.classList.remove('categorized'); }
     }
-    showToast('All categories cleared.', 'warn');
-    updateProgress();
+    showToast('All categories cleared.', 'warn'); sepUpdateProgress();
 }
-
-function updateProgress() {
-    const assigned = Object.keys(pageCategories).length;
-    const pct = totalPages ? Math.round((assigned / totalPages) * 100) : 0;
-    const unassigned = totalPages - assigned;
-    const numCats = new Set(Object.values(pageCategories)).size;
-
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressLabelText').textContent = `${assigned} of ${totalPages} page${totalPages!==1?'s':''} assigned`;
-    document.getElementById('progressLabelPct').textContent = pct + '%';
-    document.getElementById('downloadBtn').disabled = assigned === 0;
-    document.getElementById('actionBarInfo').textContent = assigned > 0
-        ? `${assigned} page${assigned!==1?'s':''} · ${numCats} categor${numCats!==1?'ies':'y'} · ready to export`
+function sepUpdateProgress() {
+    var assigned = Object.keys(sepPageCategories).length;
+    var pct = sepTotalPages ? Math.round(assigned / sepTotalPages * 100) : 0;
+    var unassigned = sepTotalPages - assigned;
+    var numCats = (new Set(Object.values(sepPageCategories))).size;
+    document.getElementById('progressFill').style.width      = pct + '%';
+    document.getElementById('progressLabelText').textContent = assigned + ' of ' + sepTotalPages + ' page' + (sepTotalPages !== 1 ? 's' : '') + ' assigned';
+    document.getElementById('progressLabelPct').textContent  = pct + '%';
+    document.getElementById('downloadBtn').disabled          = assigned === 0;
+    document.getElementById('actionBarInfo').textContent     = assigned > 0
+        ? assigned + ' page' + (assigned !== 1 ? 's' : '') + ' \u00b7 ' + numCats + ' categor' + (numCats !== 1 ? 'ies' : 'y') + ' \u00b7 ready to export'
         : 'Assign categories to pages, then download.';
-
-    const banner = document.getElementById('uncategorizedBanner');
+    var banner = document.getElementById('uncategorizedBanner');
     if (assigned > 0 && unassigned > 0) {
-        document.getElementById('uncategorizedText').textContent = `${unassigned} page${unassigned!==1?'s':''} without a category will be skipped.`;
+        document.getElementById('uncategorizedText').textContent =
+            unassigned + ' page' + (unassigned !== 1 ? 's' : '') + ' without a category will be skipped.';
         banner.classList.add('visible');
-    } else {
-        banner.classList.remove('visible');
-    }
+    } else { banner.classList.remove('visible'); }
 }
 
-// ── Annotation state ──────────────────────────────────────────────────────
-const pageAnnotationHistory = {}; // pageNum -> [dataURL, ...]
-
-function initAnnotToolbar(pageNum, card) {
-    const tb = card.querySelector(`#annot-toolbar-${pageNum}`);
-    if (!tb) return;
-
-    // Tool selection
-    tb.querySelectorAll('.annot-tool').forEach(btn => {
-        btn.addEventListener('click', e => {
+function sepInitCardAnnotToolbar(pn, card) {
+    var tb = card.querySelector('#sep-tb-' + pn); if (!tb) return;
+    tb.querySelectorAll('.annot-tool').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
             e.stopPropagation();
-            tb.querySelectorAll('.annot-tool').forEach(b => b.classList.remove('active'));
+            tb.querySelectorAll('.annot-tool').forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
-            const isText = btn.dataset.tool === 'text';
-            tb.querySelector('.annot-fontsize').style.display = isText ? '' : 'none';
+            tb.querySelector('.annot-fontsize').style.display = btn.dataset.tool === 'text' ? '' : 'none';
         });
     });
-
-    // Hide fontsize by default (pen is default tool)
-    tb.querySelector('.annot-fontsize').style.display = 'none';
-
-    // Undo / clear actions
-    tb.querySelector('[data-action="undo"]').addEventListener('click', e => {
-        e.stopPropagation();
-        undoAnnotation(pageNum);
-    });
-    tb.querySelector('[data-action="clear"]').addEventListener('click', e => {
-        e.stopPropagation();
-        clearAnnotations(pageNum);
-    });
-
-    // Prevent toolbar interactions from triggering card drag
-    tb.addEventListener('mousedown', e => e.stopPropagation());
+    tb.querySelector('[data-action="undo"]').addEventListener('click',  function(e) { e.stopPropagation(); sepUndoAnnot(pn); });
+    tb.querySelector('[data-action="clear"]').addEventListener('click', function(e) { e.stopPropagation(); sepClearAnnot(pn); });
+    tb.addEventListener('mousedown', function(e) { e.stopPropagation(); });
 }
-
-function initAnnotCanvas(pageNum, canvas, img) {
-    const w = img.naturalWidth || 400;
-    const h = img.naturalHeight || 300;
-    if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
-    }
-    if (!pageAnnotationHistory[pageNum]) pageAnnotationHistory[pageNum] = [];
-
-    // Restore existing annotation if history present
-    const hist = pageAnnotationHistory[pageNum];
+function sepInitCardAnnotCanvas(pn, canvas, img) {
+    var w = img.naturalWidth || 400, h = img.naturalHeight || 300;
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    if (!sepPageAnnotHistory[pn]) sepPageAnnotHistory[pn] = [];
+    var hist = sepPageAnnotHistory[pn];
     if (hist.length > 0) {
-        const restored = new Image();
-        restored.src = hist[hist.length - 1];
-        restored.onload = () => canvas.getContext('2d').drawImage(restored, 0, 0);
-        restored.onerror = () => console.warn(`Could not restore annotation for page ${pageNum}`);
+        var r = new Image(); r.src = hist[hist.length - 1];
+        r.onload = function() { canvas.getContext('2d').drawImage(r, 0, 0); };
     }
-
-    setupAnnotationDrawing(pageNum, canvas);
+    sepSetupCardDrawing(pn, canvas);
 }
+function sepGetCardTool(pn)  { var tb = document.getElementById('sep-tb-' + pn); if (!tb) return 'pen'; var a = tb.querySelector('.annot-tool.active'); return a ? a.dataset.tool : 'pen'; }
+function sepGetCardColor(pn) { var tb = document.getElementById('sep-tb-' + pn); return tb ? tb.querySelector('.annot-color').value : '#ff0000'; }
+function sepGetCardSize(pn)  { var tb = document.getElementById('sep-tb-' + pn); return tb ? parseInt(tb.querySelector('.annot-brush').value) || 3 : 3; }
+function sepGetCardFont(pn)  { var tb = document.getElementById('sep-tb-' + pn); return tb ? parseInt(tb.querySelector('.annot-fontsize').value) || 16 : 16; }
 
-function getActiveTool(pageNum) {
-    const tb = document.getElementById(`annot-toolbar-${pageNum}`);
-    if (!tb) return 'pen';
-    const active = tb.querySelector('.annot-tool.active');
-    return active ? active.dataset.tool : 'pen';
-}
-
-function getAnnotColor(pageNum) {
-    const tb = document.getElementById(`annot-toolbar-${pageNum}`);
-    return tb ? tb.querySelector('.annot-color').value : '#ff0000';
-}
-
-function getAnnotBrushSize(pageNum) {
-    const tb = document.getElementById(`annot-toolbar-${pageNum}`);
-    return tb ? parseInt(tb.querySelector('.annot-brush').value) || 3 : 3;
-}
-
-function getAnnotFontSize(pageNum) {
-    const tb = document.getElementById(`annot-toolbar-${pageNum}`);
-    return tb ? parseInt(tb.querySelector('.annot-fontsize').value) || 16 : 16;
-}
-
-function setupAnnotationDrawing(pageNum, canvas) {
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    let startX, startY;
-    let snapshotData = null;
-
-    function getCoords(e) {
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        const src = e.touches ? e.touches[0] : e;
-        return {
-            x: (src.clientX - rect.left) * scaleX,
-            y: (src.clientY - rect.top) * scaleY
-        };
+function sepSetupCardDrawing(pn, canvas) {
+    var ctx = canvas.getContext('2d'), drawing = false, sx, sy, snap = null;
+    function coords(e) {
+        var r = canvas.getBoundingClientRect(), kx = canvas.width / r.width, ky = canvas.height / r.height;
+        var s = e.touches ? e.touches[0] : e;
+        return { x: (s.clientX - r.left) * kx, y: (s.clientY - r.top) * ky };
     }
-
-    function startDraw(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const tool = getActiveTool(pageNum);
-        const { x, y } = getCoords(e);
-
-        if (tool === 'text') {
-            handleTextInput(pageNum, canvas, x, y);
-            return;
-        }
-
-        drawing = true;
-        startX = x; startY = y;
-
-        if (tool !== 'pen') {
-            snapshotData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        } else {
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-        }
-
-        // Disable card drag while drawing
-        const card = canvas.closest('.page-card');
-        if (card) card.draggable = false;
+    function down(e) {
+        e.preventDefault(); e.stopPropagation();
+        var tool = sepGetCardTool(pn), pt = coords(e);
+        if (tool === 'text') { sepCardTextInput(pn, canvas, pt.x, pt.y); return; }
+        drawing = true; sx = pt.x; sy = pt.y;
+        if (tool !== 'pen') { snap = ctx.getImageData(0, 0, canvas.width, canvas.height); }
+        else { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); }
+        var card = canvas.closest('.page-card'); if (card) card.draggable = false;
     }
-
-    function moveDraw(e) {
-        if (!drawing) return;
-        e.preventDefault();
-        e.stopPropagation();
-        const { x, y } = getCoords(e);
-        const tool = getActiveTool(pageNum);
-        const color = getAnnotColor(pageNum);
-        const size = getAnnotBrushSize(pageNum);
-
-        ctx.strokeStyle = color;
-        ctx.lineWidth = size;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
-        if (tool === 'pen') {
-            ctx.lineTo(x, y);
-            ctx.stroke();
-        } else if (snapshotData) {
-            ctx.putImageData(snapshotData, 0, 0);
-            if (tool === 'line')   drawLine(ctx, startX, startY, x, y, color, size);
-            else if (tool === 'rect')   drawRect(ctx, startX, startY, x, y, color, size);
-            else if (tool === 'circle') drawCircle(ctx, startX, startY, x, y, color, size);
-            else if (tool === 'arrow')  drawArrow(ctx, startX, startY, x, y, color, size);
+    function move(e) {
+        if (!drawing) return; e.preventDefault(); e.stopPropagation();
+        var pt = coords(e), tool = sepGetCardTool(pn), col = sepGetCardColor(pn), sz = sepGetCardSize(pn);
+        ctx.strokeStyle = col; ctx.lineWidth = sz; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        if (tool === 'pen') { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
+        else if (snap) {
+            ctx.putImageData(snap, 0, 0);
+            if      (tool === 'line')   drawLine(ctx, sx, sy, pt.x, pt.y, col, sz);
+            else if (tool === 'rect')   drawRect(ctx, sx, sy, pt.x, pt.y, col, sz);
+            else if (tool === 'circle') drawCircle(ctx, sx, sy, pt.x, pt.y, col, sz);
+            else if (tool === 'arrow')  drawArrow(ctx, sx, sy, pt.x, pt.y, col, sz);
         }
     }
-
-    function endDraw(e) {
-        if (!drawing) return;
-        e.preventDefault();
-        drawing = false;
-        const tool = getActiveTool(pageNum);
-        if (tool === 'pen') ctx.closePath();
-        snapshotData = null;
-        saveAnnotState(pageNum, canvas);
-        const card = canvas.closest('.page-card');
-        if (card) card.draggable = true;
+    function up(e) {
+        if (!drawing) return; e.preventDefault(); drawing = false;
+        if (sepGetCardTool(pn) === 'pen') ctx.closePath();
+        snap = null; sepSaveCardAnnot(pn, canvas);
+        var card = canvas.closest('.page-card'); if (card) card.draggable = true;
     }
-
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mousemove', moveDraw);
-    canvas.addEventListener('mouseup', endDraw);
-    canvas.addEventListener('mouseleave', endDraw);
-    canvas.addEventListener('touchstart', startDraw, { passive: false });
-    canvas.addEventListener('touchmove', moveDraw, { passive: false });
-    canvas.addEventListener('touchend', endDraw);
+    canvas.addEventListener('mousedown', down);
+    canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', up);
+    canvas.addEventListener('mouseleave', up);
+    canvas.addEventListener('touchstart', down, { passive: false });
+    canvas.addEventListener('touchmove',  move, { passive: false });
+    canvas.addEventListener('touchend',   up);
+}
+function sepCardTextInput(pn, canvas, x, y) {
+    var con = canvas.parentElement, r = canvas.getBoundingClientRect();
+    var kx = r.width / canvas.width, ky = r.height / canvas.height;
+    var fs = sepGetCardFont(pn), col = sepGetCardColor(pn);
+    var inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'annot-text-input';
+    inp.style.cssText = 'left:' + (x*kx) + 'px;top:' + ((y-fs)*ky) + 'px;font-size:' + (fs*ky) + 'px;color:' + col + ';border-color:' + col + ';';
+    con.appendChild(inp); inp.focus();
+    var done = false;
+    function commit() {
+        if (done) return; done = true;
+        if (inp.value.trim()) {
+            var ctx = canvas.getContext('2d');
+            ctx.font = fs + 'px DM Sans, sans-serif'; ctx.fillStyle = col;
+            ctx.fillText(inp.value, x, y); sepSaveCardAnnot(pn, canvas);
+        }
+        if (inp.parentNode) inp.parentNode.removeChild(inp);
+    }
+    inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); commit(); }
+        if (e.key === 'Escape') { done = true; if (inp.parentNode) inp.parentNode.removeChild(inp); }
+    });
+    inp.addEventListener('blur', commit);
+}
+function sepSaveCardAnnot(pn, canvas) {
+    if (!sepPageAnnotHistory[pn]) sepPageAnnotHistory[pn] = [];
+    sepPageAnnotHistory[pn].push(canvas.toDataURL('image/png'));
+}
+function sepUndoAnnot(pn) {
+    var hist = sepPageAnnotHistory[pn];
+    if (!hist || hist.length === 0) { showToast('Nothing to undo.', 'warn'); return; }
+    hist.pop();
+    var canvas = document.getElementById('sep-ac-' + pn); if (!canvas) return;
+    var ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (hist.length > 0) {
+        var img = new Image(); img.src = hist[hist.length - 1];
+        img.onload = function() { ctx.drawImage(img, 0, 0); };
+    }
+}
+function sepClearAnnot(pn) {
+    var canvas = document.getElementById('sep-ac-' + pn); if (!canvas) return;
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    sepPageAnnotHistory[pn] = [];
 }
 
-function drawLine(ctx, x1, y1, x2, y2, color, size) {
-    ctx.beginPath();
-    ctx.strokeStyle = color; ctx.lineWidth = size; ctx.lineCap = 'round';
-    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-    ctx.stroke();
+/* Drawing primitives */
+function drawLine(ctx, x1, y1, x2, y2, col, sz) {
+    ctx.beginPath(); ctx.strokeStyle = col; ctx.lineWidth = sz; ctx.lineCap = 'round';
+    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
 }
-
-function drawRect(ctx, x1, y1, x2, y2, color, size) {
-    ctx.beginPath();
-    ctx.strokeStyle = color; ctx.lineWidth = size;
+function drawRect(ctx, x1, y1, x2, y2, col, sz) {
+    ctx.beginPath(); ctx.strokeStyle = col; ctx.lineWidth = sz;
     ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
 }
-
-function drawCircle(ctx, x1, y1, x2, y2, color, size) {
-    const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
-    const rx = Math.abs(x2 - x1) / 2, ry = Math.abs(y2 - y1) / 2;
-    ctx.beginPath();
-    ctx.strokeStyle = color; ctx.lineWidth = size;
-    ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+function drawCircle(ctx, x1, y1, x2, y2, col, sz) {
+    ctx.beginPath(); ctx.strokeStyle = col; ctx.lineWidth = sz;
+    ctx.ellipse((x1+x2)/2, (y1+y2)/2, Math.abs(x2-x1)/2, Math.abs(y2-y1)/2, 0, 0, 2*Math.PI);
     ctx.stroke();
 }
-
-function drawArrow(ctx, x1, y1, x2, y2, color, size) {
-    const angle = Math.atan2(y2 - y1, x2 - x1);
-    // headLen: min 14px for visibility, scaled with stroke width (4×) for proportional arrows
-    const headLen = Math.max(14, size * 4);
-    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = size; ctx.lineCap = 'round';
+function drawArrow(ctx, x1, y1, x2, y2, col, sz) {
+    var angle = Math.atan2(y2 - y1, x2 - x1), hl = Math.max(14, sz * 4);
+    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = sz; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x2, y2);
-    ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
-    ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+    ctx.beginPath(); ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - hl*Math.cos(angle - Math.PI/6), y2 - hl*Math.sin(angle - Math.PI/6));
+    ctx.lineTo(x2 - hl*Math.cos(angle + Math.PI/6), y2 - hl*Math.sin(angle + Math.PI/6));
     ctx.closePath(); ctx.fill();
 }
 
-function handleTextInput(pageNum, canvas, x, y) {
-    const container = canvas.parentElement;
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = rect.width / canvas.width;
-    const scaleY = rect.height / canvas.height;
-    const fontSize = getAnnotFontSize(pageNum);
-    const color = getAnnotColor(pageNum);
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'annot-text-input';
-    input.style.cssText = `left:${x * scaleX}px;top:${(y - fontSize) * scaleY}px;` +
-        `font-size:${fontSize * scaleY}px;color:${color};border-color:${color};`;
-    container.appendChild(input);
-    input.focus();
-
-    let committed = false;
-    function commit() {
-        if (committed) return;
-        committed = true;
-        if (input.value.trim()) {
-            const ctx = canvas.getContext('2d');
-            ctx.font = `${fontSize}px DM Sans, sans-serif`;
-            ctx.fillStyle = color;
-            ctx.fillText(input.value, x, y);
-            saveAnnotState(pageNum, canvas);
-        }
-        if (input.parentNode) input.parentNode.removeChild(input);
-    }
-    input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') { e.preventDefault(); commit(); }
-        if (e.key === 'Escape') { committed = true; if (input.parentNode) input.parentNode.removeChild(input); }
-    });
-    input.addEventListener('blur', commit);
-}
-
-function saveAnnotState(pageNum, canvas) {
-    if (!pageAnnotationHistory[pageNum]) pageAnnotationHistory[pageNum] = [];
-    pageAnnotationHistory[pageNum].push(canvas.toDataURL('image/png'));
-}
-
-function undoAnnotation(pageNum) {
-    const hist = pageAnnotationHistory[pageNum];
-    if (!hist || hist.length === 0) { showToast('Nothing to undo.', 'warn'); return; }
-    hist.pop();
-    const canvas = document.getElementById(`annot-canvas-${pageNum}`);
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (hist.length > 0) {
-        const img = new Image();
-        img.src = hist[hist.length - 1];
-        img.onload = () => ctx.drawImage(img, 0, 0);
-        img.onerror = () => showToast('Could not restore previous annotation state.', 'warn');
-    }
-}
-
-function clearAnnotations(pageNum) {
-    const canvas = document.getElementById(`annot-canvas-${pageNum}`);
-    if (!canvas) return;
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-    pageAnnotationHistory[pageNum] = [];
-}
-// ── End annotation ────────────────────────────────────────────────────────
-
 async function downloadSeparatedPDFs() {
-    const categorizedPages = {};
-    for (const origPage of pageOrder) {
-        const cat = pageCategories[origPage];
-        if (cat) {
-            if (!categorizedPages[cat]) categorizedPages[cat] = [];
-            categorizedPages[cat].push(origPage);
-        }
-    }
-
-    if (Object.keys(categorizedPages).length === 0) {
-        showToast('Please assign at least one category first.', 'error');
-        return;
-    }
-
-    showLoading('Building PDFs…', 'Please wait');
-
+    var cats = {};
+    sepPageOrder.forEach(function(p) {
+        var c = sepPageCategories[p];
+        if (c) { if (!cats[c]) cats[c] = []; cats[c].push(p); }
+    });
+    if (!Object.keys(cats).length) { showToast('Please assign at least one category first.', 'error'); return; }
+    showLoading('Building PDFs\u2026', 'Please wait');
     try {
-        const arrayBuffer = await originalFileBlob.arrayBuffer();
-        const { PDFDocument, degrees } = PDFLib;
-        const srcPdf = await PDFDocument.load(arrayBuffer);
-        const zip = new JSZip();
-
-        for (const [category, pages] of Object.entries(categorizedPages)) {
-            const newPdf = await PDFDocument.create();
-            for (const pageNum of pages) {
-                const [pg] = await newPdf.copyPages(srcPdf, [pageNum - 1]);
-                const rot = pageRotations[pageNum] || 0;
+        var ab = await sepFileBlob.arrayBuffer();
+        var PDFDoc = PDFLib.PDFDocument, degrees = PDFLib.degrees;
+        var src = await PDFDoc.load(ab), zip = new JSZip();
+        for (var cat in cats) {
+            var pages = cats[cat], doc = await PDFDoc.create();
+            for (var j = 0; j < pages.length; j++) {
+                var pn = pages[j];
+                var copied = await doc.copyPages(src, [pn - 1]);
+                var pg = copied[0];
+                var rot = sepPageRotations[pn] || 0;
                 if (rot !== 0) {
-                    const existingRot = pg.getRotation ? pg.getRotation().angle : 0;
-                    pg.setRotation(degrees((existingRot + rot) % 360));
+                    var existing = pg.getRotation ? pg.getRotation().angle : 0;
+                    pg.setRotation(degrees((existing + rot) % 360));
                 }
-                newPdf.addPage(pg);
-
-                // Embed annotations if any
-                const annotCanvas = document.getElementById(`annot-canvas-${pageNum}`);
-                const annotHist = pageAnnotationHistory[pageNum];
-                if (annotCanvas && annotHist && annotHist.length > 0) {
+                doc.addPage(pg);
+                var ac = document.getElementById('sep-ac-' + pn);
+                var ah = sepPageAnnotHistory[pn];
+                if (ac && ah && ah.length > 0) {
                     try {
-                        const dataUrl = annotCanvas.toDataURL('image/png');
-                        const base64 = dataUrl.split(',')[1];
-                        const annotBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-                        const annotImg = await newPdf.embedPng(annotBytes);
-                        const addedPage = newPdf.getPages()[newPdf.getPageCount() - 1];
-                        const { width, height } = addedPage.getSize();
-                        addedPage.drawImage(annotImg, { x: 0, y: 0, width, height });
-                    } catch (annotErr) {
-                        console.warn(`Annotation embed failed for page ${pageNum}:`, annotErr);
-                    }
+                        var b64 = ac.toDataURL('image/png').split(',')[1];
+                        var bytes = Uint8Array.from(atob(b64), function(c) { return c.charCodeAt(0); });
+                        var im = await doc.embedPng(bytes);
+                        var added = doc.getPages()[doc.getPageCount() - 1];
+                        var sz = added.getSize();
+                        added.drawImage(im, { x: 0, y: 0, width: sz.width, height: sz.height });
+                    } catch (err) { console.warn('Annotation embed failed p' + pn, err); }
                 }
             }
-            const pdfBytes = await newPdf.save();
-            const label = CATEGORIES.find(c => c.value === category)?.label || category;
-            zip.file(`${label.replace(/\s+/g, '_')}.pdf`, pdfBytes);
+            var pdfBytes = await doc.save();
+            var label = (SEP_CATEGORIES.find(function(c) { return c.value === cat; }) || { label: cat }).label;
+            zip.file(label.replace(/\s+/g, '_') + '.pdf', pdfBytes);
         }
-
-        document.getElementById('loaderText').textContent = 'Generating ZIP…';
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-
-        const url = URL.createObjectURL(zipBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'Categorized_Documents.zip';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 300);
-
+        document.getElementById('loaderText').textContent = 'Generating ZIP\u2026';
+        var blob = await zip.generateAsync({ type: 'blob' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = 'Categorized_Documents.zip';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(a.href); }, 300);
         hideLoading();
-        const count = Object.keys(categorizedPages).length;
-        showToast(`Downloaded ${count} PDF${count!==1?'s':''} in a ZIP.`, 'success');
-    } catch (err) {
-        hideLoading();
-        showToast(`Download failed: ${err.message}`, 'error');
+        var n = Object.keys(cats).length;
+        showToast('Downloaded ' + n + ' PDF' + (n !== 1 ? 's' : '') + ' in a ZIP.', 'success');
+    } catch (err) { hideLoading(); showToast('Download failed: ' + err.message, 'error'); }
+}
+
+function resetSeparator() {
+    sepFileBlob = null; sepPdfDoc = null; sepTotalPages = 0; sepPageOrder = [];
+    [sepPageCategories, sepPageRotations, sepPageFlips, sepThumbnailCache, sepPageAnnotHistory].forEach(function(o) {
+        Object.keys(o).forEach(function(k) { delete o[k]; });
+    });
+    document.getElementById('pagesSection').style.display  = 'none';
+    document.getElementById('uploadSection').style.display = '';
+    document.getElementById('actionBar').style.display     = 'none';
+    var g = document.getElementById('pagesGrid'); g.innerHTML = ''; delete g.dataset.dndInit;
+    document.getElementById('uncategorizedBanner').classList.remove('visible');
+    fileInput.value = ''; sepUpdateProgress();
+}
+
+/* === PDF ANNOTATOR === */
+var annotFileBlob = null, annotPdfDoc = null, annotTotalPages = 0, annotCurrentPage = 1;
+var annotPageStates = {};
+var annotActiveTool = 'pen';
+var annotPlacingStamp = null, annotPlacingSig = false, annotSigDataURL = null;
+
+var annotUploadArea = document.getElementById('annotUploadArea');
+var annotFileInput  = document.getElementById('annotFileInput');
+annotUploadArea.addEventListener('click',     function() { annotFileInput.click(); });
+annotUploadArea.addEventListener('dragover',  function(e) { e.preventDefault(); annotUploadArea.classList.add('dragover'); });
+annotUploadArea.addEventListener('dragleave', function() { annotUploadArea.classList.remove('dragover'); });
+annotUploadArea.addEventListener('drop', function(e) { e.preventDefault(); annotUploadArea.classList.remove('dragover'); if (e.dataTransfer.files[0]) annotLoad(e.dataTransfer.files[0]); });
+annotFileInput.addEventListener('change', function(e) { if (e.target.files[0]) annotLoad(e.target.files[0]); });
+
+document.getElementById('annotBrushSize').addEventListener('input', function() {
+    document.getElementById('annotBrushSizeVal').textContent = this.value;
+});
+document.getElementById('annotColor').addEventListener('input', function() {
+    document.querySelectorAll('.at-color-preset').forEach(function(p) { p.classList.remove('active'); });
+});
+
+function setAnnotColor(color) {
+    document.getElementById('annotColor').value = color;
+    document.querySelectorAll('.at-color-preset').forEach(function(p) {
+        p.classList.toggle('active', p.dataset.color === color);
+    });
+}
+function setAnnotTool(tool) {
+    annotActiveTool = tool;
+    document.querySelectorAll('.at-btn[data-tool]').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.tool === tool);
+    });
+    document.getElementById('annotFontsizeRow').style.display = tool === 'text' ? 'flex' : 'none';
+    annotPlacingStamp = null; annotPlacingSig = false; clearStampHighlight();
+}
+function clearStampHighlight() {
+    ['stampApproved','stampRejected','stampConfidential'].forEach(function(id) {
+        var el = document.getElementById(id); if (el) el.classList.remove('placing');
+    });
+    var sb = document.getElementById('sigBtn'); if (sb) sb.classList.remove('placing');
+}
+function activateStamp(type) {
+    annotPlacingStamp = type; annotPlacingSig = false; clearStampHighlight();
+    var idMap = { APPROVED: 'stampApproved', REJECTED: 'stampRejected', CONFIDENTIAL: 'stampConfidential' };
+    var el = document.getElementById(idMap[type]); if (el) el.classList.add('placing');
+    showToast('Click on the page to place the ' + type + ' stamp', 'success');
+}
+function annotGetColor() { return document.getElementById('annotColor').value; }
+function annotGetSize()  { return parseInt(document.getElementById('annotBrushSize').value) || 3; }
+function annotGetFont()  { return parseInt(document.getElementById('annotFontSize').value) || 24; }
+
+function annotLoad(file) {
+    if (file.type !== 'application/pdf') { showToast('Please upload a valid PDF file.', 'error'); return; }
+    if (file.size > 50 * 1024 * 1024)   { showToast('File exceeds 50 MB limit.', 'error'); return; }
+    annotFileBlob = file;
+    showLoading('Loading PDF\u2026', file.name);
+    file.arrayBuffer().then(function(buf) {
+        pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise.then(function(doc) {
+            annotPdfDoc = doc; annotTotalPages = doc.numPages; annotCurrentPage = 1;
+            Object.keys(annotPageStates).forEach(function(k) { delete annotPageStates[k]; });
+            document.getElementById('annot-upload-section').style.display  = 'none';
+            document.getElementById('annot-working-section').style.display = 'block';
+            document.getElementById('annotDownloadBtn').disabled = false;
+            annotUpdateNav();
+            annotRenderPage(annotCurrentPage).then(hideLoading);
+        }).catch(function() { hideLoading(); showToast('Could not read PDF.', 'error'); });
+    });
+}
+function annotUpdateNav() {
+    document.getElementById('annotPageInfo').textContent = 'Page ' + annotCurrentPage + ' / ' + annotTotalPages;
+    document.getElementById('annotPrevBtn').disabled     = annotCurrentPage <= 1;
+    document.getElementById('annotNextBtn').disabled     = annotCurrentPage >= annotTotalPages;
+}
+async function annotGoPage(delta) {
+    var next = annotCurrentPage + delta;
+    if (next < 1 || next > annotTotalPages) return;
+    annotSaveCurrentState();
+    annotCurrentPage = next; annotUpdateNav();
+    await annotRenderPage(annotCurrentPage);
+}
+function annotSaveCurrentState() {
+    var dc = document.getElementById('annotDrawCanvas'); if (!dc) return;
+    if (!annotPageStates[annotCurrentPage]) annotPageStates[annotCurrentPage] = [];
+    var ctx = dc.getContext('2d'), data = ctx.getImageData(0, 0, dc.width, dc.height);
+    var hasContent = false;
+    for (var i = 3; i < data.data.length; i += 4) { if (data.data[i] > 0) { hasContent = true; break; } }
+    if (hasContent || annotPageStates[annotCurrentPage].length > 0) {
+        annotPageStates[annotCurrentPage].push(dc.toDataURL('image/png'));
     }
 }
-
-function resetApp() {
-    originalFileBlob = null;
-    pdfDoc = null;
-    totalPages = 0;
-    pageOrder = [];
-    Object.keys(pageCategories).forEach(k => delete pageCategories[k]);
-    Object.keys(pageRotations).forEach(k => delete pageRotations[k]);
-    Object.keys(pageFlips).forEach(k => delete pageFlips[k]);
-    Object.keys(thumbnailCache).forEach(k => delete thumbnailCache[k]);
-    Object.keys(pageAnnotationHistory).forEach(k => delete pageAnnotationHistory[k]);
-    document.getElementById('pagesSection').classList.remove('active');
-    document.getElementById('uploadSection').style.display = '';
-    document.getElementById('actionBar').style.display = 'none';
-    const g = document.getElementById('pagesGrid');
-    g.innerHTML = '';
-    delete g.dataset.dndInit;
-    document.getElementById('uncategorizedBanner').classList.remove('visible');
-    fileInput.value = '';
-    updateProgress();
+async function annotRenderPage(pn) {
+    var pc = document.getElementById('annotPageCanvas');
+    var dc = document.getElementById('annotDrawCanvas');
+    try {
+        var page = await annotPdfDoc.getPage(pn);
+        var vp = page.getViewport({ scale: 1.5 });
+        pc.width = vp.width;  pc.height = vp.height;
+        dc.width = vp.width;  dc.height = vp.height;
+        await page.render({ canvasContext: pc.getContext('2d'), viewport: vp }).promise;
+        var hist = annotPageStates[pn];
+        var ctx = dc.getContext('2d');
+        ctx.clearRect(0, 0, dc.width, dc.height);
+        if (hist && hist.length > 0) {
+            var img = new Image(); img.src = hist[hist.length - 1];
+            await new Promise(function(res) { img.onload = res; img.onerror = res; });
+            ctx.drawImage(img, 0, 0);
+        }
+        annotSetupDrawing(dc);
+    } catch (err) { showToast('Page render failed: ' + err.message, 'error'); }
+}
+function annotSetupDrawing(canvas) {
+    var fresh = canvas.cloneNode(false);
+    fresh.id = 'annotDrawCanvas';
+    canvas.parentNode.replaceChild(fresh, canvas);
+    var ctx = fresh.getContext('2d');
+    var hist = annotPageStates[annotCurrentPage];
+    if (hist && hist.length > 0) {
+        var img = new Image(); img.src = hist[hist.length - 1];
+        img.onload = function() { ctx.drawImage(img, 0, 0); };
+    }
+    var drawing = false, sx, sy, snap = null;
+    function coords(e) {
+        var r = fresh.getBoundingClientRect(), kx = fresh.width / r.width, ky = fresh.height / r.height;
+        var s = e.touches ? e.touches[0] : e;
+        return { x: (s.clientX - r.left) * kx, y: (s.clientY - r.top) * ky };
+    }
+    fresh.addEventListener('click', function(e) {
+        if (annotPlacingStamp) {
+            var pt = coords(e); placeStampOnCanvas(ctx, fresh, annotPlacingStamp, pt.x, pt.y);
+            annotPlacingStamp = null; clearStampHighlight(); return;
+        }
+        if (annotPlacingSig && annotSigDataURL) {
+            var pt = coords(e); placeSigOnCanvas(ctx, fresh, annotSigDataURL, pt.x, pt.y);
+            annotPlacingSig = false; clearStampHighlight();
+        }
+    });
+    function down(e) {
+        if (annotPlacingStamp || annotPlacingSig) return;
+        e.preventDefault();
+        var tool = annotActiveTool, pt = coords(e);
+        if (tool === 'text') { annotTextInput(fresh, ctx, pt.x, pt.y); return; }
+        drawing = true; sx = pt.x; sy = pt.y;
+        if (tool !== 'pen') { snap = ctx.getImageData(0, 0, fresh.width, fresh.height); }
+        else { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); }
+    }
+    function moveFn(e) {
+        if (!drawing) return; e.preventDefault();
+        var pt = coords(e), col = annotGetColor(), sz = annotGetSize(), tool = annotActiveTool;
+        ctx.strokeStyle = col; ctx.lineWidth = sz; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        if (tool === 'pen') { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
+        else if (snap) {
+            ctx.putImageData(snap, 0, 0);
+            if      (tool === 'line')   drawLine(ctx, sx, sy, pt.x, pt.y, col, sz);
+            else if (tool === 'rect')   drawRect(ctx, sx, sy, pt.x, pt.y, col, sz);
+            else if (tool === 'circle') drawCircle(ctx, sx, sy, pt.x, pt.y, col, sz);
+            else if (tool === 'arrow')  drawArrow(ctx, sx, sy, pt.x, pt.y, col, sz);
+        }
+    }
+    function endFn(e) {
+        if (!drawing) return; e.preventDefault(); drawing = false;
+        if (annotActiveTool === 'pen') ctx.closePath();
+        snap = null; annotSaveState(fresh);
+    }
+    fresh.addEventListener('mousedown', down);
+    fresh.addEventListener('mousemove', moveFn);
+    fresh.addEventListener('mouseup',    endFn);
+    fresh.addEventListener('mouseleave', endFn);
+    fresh.addEventListener('touchstart', function(e) {
+        if (annotPlacingStamp || annotPlacingSig) return;
+        e.preventDefault();
+        var tool = annotActiveTool, pt = coords(e);
+        if (tool === 'text') { annotTextInput(fresh, ctx, pt.x, pt.y); return; }
+        drawing = true; sx = pt.x; sy = pt.y;
+        if (tool !== 'pen') { snap = ctx.getImageData(0, 0, fresh.width, fresh.height); }
+        else { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); }
+    }, { passive: false });
+    fresh.addEventListener('touchmove', function(e) {
+        if (!drawing) return; e.preventDefault();
+        var pt = coords(e), col = annotGetColor(), sz = annotGetSize(), tool = annotActiveTool;
+        ctx.strokeStyle = col; ctx.lineWidth = sz; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        if (tool === 'pen') { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
+        else if (snap) {
+            ctx.putImageData(snap, 0, 0);
+            if      (tool === 'line')   drawLine(ctx, sx, sy, pt.x, pt.y, col, sz);
+            else if (tool === 'rect')   drawRect(ctx, sx, sy, pt.x, pt.y, col, sz);
+            else if (tool === 'circle') drawCircle(ctx, sx, sy, pt.x, pt.y, col, sz);
+            else if (tool === 'arrow')  drawArrow(ctx, sx, sy, pt.x, pt.y, col, sz);
+        }
+    }, { passive: false });
+    fresh.addEventListener('touchend', function(e) {
+        if (!drawing) return; e.preventDefault(); drawing = false;
+        if (annotActiveTool === 'pen') ctx.closePath();
+        snap = null; annotSaveState(fresh);
+    });
+}
+function annotTextInput(canvas, ctx, x, y) {
+    var con = canvas.parentElement, r = canvas.getBoundingClientRect();
+    var kx = r.width / canvas.width, ky = r.height / canvas.height;
+    var fs = annotGetFont(), col = annotGetColor();
+    var inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'annot-text-input';
+    inp.style.cssText = 'left:' + (x*kx) + 'px;top:' + ((y-fs)*ky) + 'px;font-size:' + (fs*ky) + 'px;color:' + col + ';border-color:' + col + ';';
+    con.appendChild(inp); inp.focus();
+    var done = false;
+    function commit() {
+        if (done) return; done = true;
+        if (inp.value.trim()) {
+            ctx.font = 'bold ' + fs + 'px DM Sans, sans-serif'; ctx.fillStyle = col;
+            ctx.fillText(inp.value, x, y); annotSaveState(canvas);
+        }
+        if (inp.parentNode) inp.parentNode.removeChild(inp);
+    }
+    inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); commit(); }
+        if (e.key === 'Escape') { done = true; if (inp.parentNode) inp.parentNode.removeChild(inp); }
+    });
+    inp.addEventListener('blur', commit);
+}
+function placeStampOnCanvas(ctx, canvas, type, cx, cy) {
+    var stampColors = {
+        APPROVED:     { stroke: '#059669', fill: '#059669', text: '#ffffff' },
+        REJECTED:     { stroke: '#dc2626', fill: '#dc2626', text: '#ffffff' },
+        CONFIDENTIAL: { stroke: '#d97706', fill: '#d97706', text: '#ffffff' }
+    };
+    var c = stampColors[type] || stampColors.APPROVED;
+    var fs = 28, padX = 28, padY = 14;
+    ctx.save();
+    ctx.font = 'bold ' + fs + 'px DM Mono, monospace';
+    var tw = ctx.measureText(type).width;
+    var bw = tw + padX * 2, bh = fs + padY * 2;
+    ctx.translate(cx, cy); ctx.rotate(-0.05);
+    ctx.strokeStyle = c.stroke; ctx.lineWidth = 4;
+    ctx.beginPath();
+    var x = -bw/2, y = -bh/2, w = bw, h = bh, r = 8;
+    r = Math.min(r, w/2, h/2);
+    ctx.moveTo(x + r, y); ctx.arcTo(x+w,y, x+w,y+h, r); ctx.arcTo(x+w,y+h, x,y+h, r);
+    ctx.arcTo(x,y+h, x,y, r); ctx.arcTo(x,y, x+w,y, r); ctx.closePath();
+    ctx.stroke();
+    ctx.fillStyle = c.fill + '22'; ctx.fill();
+    ctx.fillStyle = c.fill;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(type, 0, 0);
+    ctx.restore();
+    annotSaveState(canvas);
+}
+function placeSigOnCanvas(ctx, canvas, dataURL, cx, cy) {
+    var img = new Image();
+    img.src = dataURL;
+    img.onload = function() {
+        var w = Math.min(200, canvas.width * 0.4);
+        var h = (img.height / img.width) * w;
+        ctx.drawImage(img, cx - w/2, cy - h/2, w, h);
+        annotSaveState(canvas);
+    };
+}
+function annotSaveState(canvas) {
+    if (!annotPageStates[annotCurrentPage]) annotPageStates[annotCurrentPage] = [];
+    annotPageStates[annotCurrentPage].push(canvas.toDataURL('image/png'));
+}
+function undoAnnot() {
+    var hist = annotPageStates[annotCurrentPage];
+    if (!hist || hist.length === 0) { showToast('Nothing to undo.', 'warn'); return; }
+    hist.pop();
+    var dc = document.getElementById('annotDrawCanvas'); if (!dc) return;
+    var ctx = dc.getContext('2d'); ctx.clearRect(0, 0, dc.width, dc.height);
+    if (hist.length > 0) {
+        var img = new Image(); img.src = hist[hist.length - 1];
+        img.onload = function() { ctx.drawImage(img, 0, 0); };
+    }
+}
+function clearCurrentAnnot() {
+    var dc = document.getElementById('annotDrawCanvas'); if (!dc) return;
+    dc.getContext('2d').clearRect(0, 0, dc.width, dc.height);
+    annotPageStates[annotCurrentPage] = [];
+}
+function annotNewFile() {
+    annotFileBlob = null; annotPdfDoc = null; annotTotalPages = 0; annotCurrentPage = 1;
+    Object.keys(annotPageStates).forEach(function(k) { delete annotPageStates[k]; });
+    annotSigDataURL = null; annotPlacingStamp = null; annotPlacingSig = false; clearStampHighlight();
+    document.getElementById('annot-upload-section').style.display  = 'flex';
+    document.getElementById('annot-working-section').style.display = 'none';
+    document.getElementById('annotDownloadBtn').disabled = true;
+    document.getElementById('annotPageInfo').textContent = 'No file loaded';
+    document.getElementById('annotPrevBtn').disabled = true;
+    document.getElementById('annotNextBtn').disabled = true;
+    annotFileInput.value = '';
 }
 
-function showLoading(text, sub) {
-    document.getElementById('loaderText').textContent = text;
-    document.getElementById('loaderSub').textContent = sub || '';
-    document.getElementById('loadingOverlay').classList.add('active');
+/* Signature pad */
+var sigDrawing = false, sigCtx = null;
+function openSignaturePad() {
+    var modal = document.getElementById('sigModal'); modal.classList.add('active');
+    var cv = document.getElementById('sigPadCanvas');
+    cv.style.width = '100%'; cv.style.height = '180px';
+    var rect = cv.getBoundingClientRect();
+    cv.width = Math.round(rect.width || 428); cv.height = 180;
+    initSigPad(cv);
+}
+function initSigPad(cv) {
+    var fresh = cv.cloneNode(true); fresh.id = 'sigPadCanvas';
+    cv.parentNode.replaceChild(fresh, cv);
+    sigCtx = fresh.getContext('2d');
+    sigCtx.strokeStyle = '#000'; sigCtx.lineWidth = 2; sigCtx.lineCap = 'round'; sigCtx.lineJoin = 'round';
+    function coords(e) {
+        var r = fresh.getBoundingClientRect(), kx = fresh.width / r.width, ky = fresh.height / r.height;
+        var s = e.touches ? e.touches[0] : e;
+        return { x: (s.clientX - r.left) * kx, y: (s.clientY - r.top) * ky };
+    }
+    fresh.addEventListener('mousedown', function(e) {
+        sigDrawing = true; var pt = coords(e); sigCtx.beginPath(); sigCtx.moveTo(pt.x, pt.y);
+    });
+    fresh.addEventListener('mousemove', function(e) {
+        if (!sigDrawing) return; var pt = coords(e); sigCtx.lineTo(pt.x, pt.y); sigCtx.stroke();
+    });
+    var stop = function() { if (sigDrawing) { sigDrawing = false; sigCtx.closePath(); } };
+    fresh.addEventListener('mouseup', stop); fresh.addEventListener('mouseleave', stop);
+    fresh.addEventListener('touchstart', function(e) {
+        e.preventDefault(); sigDrawing = true; var pt = coords(e); sigCtx.beginPath(); sigCtx.moveTo(pt.x, pt.y);
+    }, { passive: false });
+    fresh.addEventListener('touchmove', function(e) {
+        e.preventDefault(); if (!sigDrawing) return; var pt = coords(e); sigCtx.lineTo(pt.x, pt.y); sigCtx.stroke();
+    }, { passive: false });
+    fresh.addEventListener('touchend', function(e) { e.preventDefault(); stop(); }, { passive: false });
+}
+function clearSigPad() {
+    var cv = document.getElementById('sigPadCanvas'); if (!cv) return;
+    cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+}
+function closeSigModal() {
+    document.getElementById('sigModal').classList.remove('active'); sigDrawing = false;
+}
+function confirmSig() {
+    var cv = document.getElementById('sigPadCanvas'); if (!cv) return;
+    var ctx = cv.getContext('2d'), data = ctx.getImageData(0, 0, cv.width, cv.height);
+    var hasContent = false;
+    for (var i = 3; i < data.data.length; i += 4) { if (data.data[i] > 0) { hasContent = true; break; } }
+    if (!hasContent) { showToast('Please draw your signature first.', 'warn'); return; }
+    annotSigDataURL = cv.toDataURL('image/png');
+    annotPlacingSig = true; annotPlacingStamp = null; clearStampHighlight();
+    var sb = document.getElementById('sigBtn'); if (sb) sb.classList.add('placing');
+    closeSigModal();
+    showToast('Click on the page to place your signature.', 'success');
 }
 
-function hideLoading() {
-    document.getElementById('loadingOverlay').classList.remove('active');
-}
-
-function showToast(message, type = 'success') {
-    const icons = { success: '✓', error: '✕', warn: '!' };
-    const t = document.createElement('div');
-    t.className = `toast ${type}`;
-    t.innerHTML = `<div class="toast-icon">${icons[type]||'•'}</div><span>${message}</span>`;
-    document.getElementById('toastContainer').appendChild(t);
-    setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 280); }, 4000);
+async function downloadAnnotatedPDF() {
+    if (!annotFileBlob) { showToast('No file loaded.', 'error'); return; }
+    annotSaveCurrentState();
+    showLoading('Building annotated PDF\u2026', 'Please wait');
+    try {
+        var ab = await annotFileBlob.arrayBuffer();
+        var PDFDoc = PDFLib.PDFDocument;
+        var doc = await PDFDoc.load(ab);
+        var pages = doc.getPages();
+        for (var i = 0; i < pages.length; i++) {
+            var pn = i + 1, hist = annotPageStates[pn];
+            if (!hist || hist.length === 0) continue;
+            try {
+                var b64 = hist[hist.length - 1].split(',')[1];
+                var bytes = Uint8Array.from(atob(b64), function(c) { return c.charCodeAt(0); });
+                var img = await doc.embedPng(bytes);
+                var sz = pages[i].getSize();
+                pages[i].drawImage(img, { x: 0, y: 0, width: sz.width, height: sz.height });
+            } catch (err) { console.warn('Annotation embed failed p' + pn, err); }
+        }
+        var pdfBytes = await doc.save();
+        var blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = (annotFileBlob.name.replace(/\.pdf$/i, '') || 'document') + '_annotated.pdf';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(a.href); }, 300);
+        hideLoading(); showToast('Annotated PDF downloaded.', 'success');
+    } catch (err) { hideLoading(); showToast('Download failed: ' + err.message, 'error'); }
 }
 </script>
 </body>
