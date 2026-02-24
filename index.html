@@ -4,29 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Tools Professional</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: #fff;
+        }
+        header {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+        section {
+            padding: 20px;
+            margin: 10px;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        h1 {
+            font-size: 2.5em;
+        }
+        .tool {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #fff;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-    <div class="landing-page">
+    <header>
         <h1>PDF Tools Professional</h1>
-        <div class="tool-selection">
-            <div class="tool-card" id="separator-tool">PDF Separator</div>
-            <div class="tool-card" id="annotator-tool">PDF Annotator</div>
-        </div>
-    </div>
-
-    <div id="pdf-separator" class="tool-modal">
+    </header>
+    <section id="landing-page">
+        <h2>Welcome to PDF Tools Professional</h2>
+        <p>Your one-stop solution for all PDF needs!</p>
+    </section>
+    <section id="pdf-separator-tool" class="tool">
         <h2>PDF Separator Tool</h2>
-        <p>Drag and drop PDF files here.</p>
-        <button id="zip-download">Download as ZIP</button>
-    </div>
-
-    <div id="pdf-annotator" class="tool-modal">
+        <p>Drag and drop to reorder your PDF files before zipping them for download.</p>
+        <div id="drop-area" style="border: 2px dashed #fff; padding: 20px;">
+            <p>Drag PDF files here</p>
+        </div>
+        <button id="download-zip">Download Zip</button>
+    </section>
+    <section id="pdf-annotator-tool" class="tool">
         <h2>PDF Annotator Tool</h2>
-        <p>Use the tools to annotate your PDF.</p>
-        <button id="download-annotated">Download Annotated PDF</button>
-    </div>
-
-    <script src="scripts.js"></script>
+        <p>Add drawings, stamps, signatures, and annotations to your PDFs.</p>
+        <div id="annotation-area" style="border: 2px dashed #fff; padding: 20px;">
+            <p>Annotation features will be available here</p>
+        </div>
+    </section>
 </body>
 </html>
