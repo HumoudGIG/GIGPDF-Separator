@@ -1,61 +1,2290 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Tools Professional</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
-            color: #fff;
-        }
-        header {
-            background-color: #333;
-            padding: 10px;
-            text-align: center;
-        }
-        section {
-            padding: 20px;
-            margin: 10px;
-            border-radius: 8px;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-        h1 {
-            font-size: 2.5em;
-        }
-        .tool {
-            margin: 20px 0;
-            padding: 15px;
-            border: 1px solid #fff;
-            border-radius: 8px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Tools - Complete Application</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* LANDING PAGE */
+.landing {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 40px;
+}
+
+.landing h1 {
+  color: white;
+  font-size: 3.5em;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.landing p {
+  color: rgba(255,255,255,0.9);
+  font-size: 1.3em;
+  margin-bottom: 60px;
+}
+
+.tool-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  max-width: 1000px;
+}
+
+.tool-card {
+  background: white;
+  border-radius: 24px;
+  padding: 60px 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.tool-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+}
+
+.tool-card .icon {
+  font-size: 5em;
+  margin-bottom: 24px;
+}
+
+.tool-card h2 {
+  font-size: 2em;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+
+.tool-card p {
+  color: #666;
+  font-size: 1em;
+}
+
+/* SEPARATOR TOOL - Original Layout */
+#separatorTool {
+  display: none;
+  height: 100vh;
+  flex-direction: column;
+  background: #f5f5f7;
+}
+
+#separatorTool.active { display: flex; }
+
+.sep-topbar {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sep-title {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.sep-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  background: white;
+  border: 1px solid #d0d0d0;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: #f5f5f5;
+  border-color: #999;
+}
+
+.btn-primary {
+  background: #0066ff;
+  color: white;
+  border-color: #0066ff;
+}
+
+.btn-primary:hover {
+  background: #0052cc;
+}
+
+.sep-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px;
+}
+
+.sep-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 100px);
+}
+
+.upload-box {
+  background: white;
+  border: 3px dashed #d0d0d0;
+  border-radius: 16px;
+  padding: 60px 80px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.upload-box:hover {
+  border-color: #0066ff;
+  background: #f0f7ff;
+}
+
+.upload-box .icon {
+  font-size: 4em;
+  margin-bottom: 20px;
+}
+
+.upload-box h2 {
+  font-size: 1.8em;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+
+.upload-box p {
+  color: #666;
+  font-size: 1em;
+}
+
+.pages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: move;
+  transition: all 0.2s;
+}
+
+.page-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.page-card.categorized {
+  border-color: #34c759;
+  background: #f0fdf4;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.page-number {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: #666;
+}
+
+.page-badge {
+  background: #34c759;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7em;
+  display: none;
+}
+
+.page-card.categorized .page-badge {
+  display: block;
+}
+
+.page-preview {
+  width: 100%;
+  aspect-ratio: 1 / 1.4;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.page-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.page-controls {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.control-btn {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: all 0.2s;
+}
+
+.control-btn:hover {
+  background: #e8f4ff;
+  border-color: #0066ff;
+}
+
+.category-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+.category-select:focus {
+  outline: none;
+  border-color: #0066ff;
+}
+
+.page-card.categorized .category-select {
+  border-color: #34c759;
+}
+
+.page-card.drag-over {
+  border-color: #0066ff;
+  border-style: dashed;
+  background: #f0f7ff;
+  transform: scale(1.05);
+}
+
+/* ANNOTATOR TOOL - Adobe Style */
+#annotatorTool {
+  display: none;
+  height: 100vh;
+  flex-direction: column;
+}
+
+#annotatorTool.active { display: flex; }
+
+.menu-bar {
+  background: #f5f5f5;
+  border-bottom: 1px solid #d0d0d0;
+  padding: 8px 12px;
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+}
+
+.menu-item {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.menu-item:hover {
+  background: #e0e0e0;
+}
+
+.toolbar {
+  background: #f8f8f8;
+  border-bottom: 1px solid #d0d0d0;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+  margin-right: 8px;
+  border-right: 1px solid #d0d0d0;
+}
+
+.toolbar-group:last-child {
+  border-right: none;
+}
+
+.tool-btn {
+  background: white;
+  border: 1px solid #c0c0c0;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.tool-btn:hover {
+  background: #e8f4ff;
+  border-color: #0078d4;
+}
+
+.tool-btn.active {
+  background: #cce8ff;
+  border-color: #0078d4;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.left-sidebar {
+  width: 50px;
+  background: #f0f0f0;
+  border-right: 1px solid #d0d0d0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 12px;
+}
+
+.sidebar-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 20px;
+  transition: background 0.2s;
+}
+
+.sidebar-icon:hover {
+  background: #e0e0e0;
+}
+
+.sidebar-icon.active {
+  background: #0078d4;
+  color: white;
+}
+
+.thumbnail-panel {
+  width: 0;
+  background: white;
+  border-right: 1px solid #d0d0d0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.3s;
+}
+
+.thumbnail-panel.open {
+  width: 200px;
+}
+
+.panel-header {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f8f8;
+}
+
+.panel-title {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.close-panel {
+  cursor: pointer;
+  font-size: 18px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.close-panel:hover {
+  background: #e0e0e0;
+}
+
+.thumbnail-list {
+  padding: 12px;
+}
+
+.thumbnail-item {
+  margin-bottom: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  padding: 8px;
+  transition: all 0.2s;
+}
+
+.thumbnail-item:hover {
+  background: #f5f5f5;
+}
+
+.thumbnail-item.active {
+  border-color: #0078d4;
+  background: #e8f4ff;
+}
+
+.thumbnail-img {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 2px;
+  background: #fafafa;
+}
+
+.thumbnail-label {
+  text-align: center;
+  font-size: 11px;
+  color: #666;
+  margin-top: 6px;
+}
+
+.main-viewer {
+  flex: 1;
+  background: #525659;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  position: relative;
+}
+
+.page-container {
+  position: relative;
+  display: inline-block;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.page-image {
+  display: block;
+  background: white;
+}
+
+.annotation-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: crosshair;
+}
+
+.ann-upload {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: #525659;
+  color: white;
+}
+
+.ann-upload .upload-box {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.05);
+}
+
+.ann-upload .upload-box:hover {
+  border-color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.1);
+}
+
+.ann-upload h2, .ann-upload p {
+  color: white;
+}
+
+.status-bar {
+  background: #f0f0f0;
+  border-top: 1px solid #d0d0d0;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.page-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-btn {
+  background: white;
+  border: 1px solid #c0c0c0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #e8f4ff;
+}
+
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Loading & Toast */
+.loading {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.loading.active { display: flex; }
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: white;
+  font-size: 16px;
+}
+
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  background: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-size: 13px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(400px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast.success { border-left: 4px solid #107c10; }
+.toast.error { border-left: 4px solid #d83b01; }
+
+input[type="file"] { display: none; }
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f8f8;
+}
+
+.modal-header h2 {
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: #e0e0e0;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.library-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.library-item {
+  background: #f8f8f8;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.library-item:hover {
+  border-color: #0078d4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.library-item img,
+.library-item canvas {
+  width: 100%;
+  height: 80px;
+  object-fit: contain;
+  background: white;
+  border-radius: 4px;
+}
+
+.library-item-delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #d83b01;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: none;
+}
+
+.library-item:hover .library-item-delete {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: #333;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 0.95em;
+  font-family: inherit;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #0078d4;
+  box-shadow: 0 0 0 3px rgba(0,120,212,0.1);
+}
+
+.empty-library {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 0.95em;
+}
+
+@media (max-width: 900px) {
+  .tool-cards { grid-template-columns: 1fr; }
+  .landing h1 { font-size: 2.5em; }
+}
+</style>
 </head>
 <body>
-    <header>
-        <h1>PDF Tools Professional</h1>
-    </header>
-    <section id="landing-page">
-        <h2>Welcome to PDF Tools Professional</h2>
-        <p>Your one-stop solution for all PDF needs!</p>
-    </section>
-    <section id="pdf-separator-tool" class="tool">
-        <h2>PDF Separator Tool</h2>
-        <p>Drag and drop to reorder your PDF files before zipping them for download.</p>
-        <div id="drop-area" style="border: 2px dashed #fff; padding: 20px;">
-            <p>Drag PDF files here</p>
+
+<!-- LANDING PAGE -->
+<div class="landing" id="landingPage">
+  <h1>📄 PDF Tools Professional</h1>
+  <p>Choose your tool to get started</p>
+  <div class="tool-cards">
+    <div class="tool-card" id="separatorCard">
+      <div class="icon">📑</div>
+      <h2>PDF Separator</h2>
+      <p>Split, categorize & organize PDF pages</p>
+    </div>
+    <div class="tool-card" id="annotatorCard">
+      <div class="icon">✏️</div>
+      <h2>PDF Annotator</h2>
+      <p>Professional annotation workspace</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- SEPARATOR TOOL -->
+<div id="separatorTool">
+  <div class="sep-topbar">
+    <div class="sep-title">📑 PDF Separator</div>
+    <div class="sep-actions">
+      <button class="btn" onclick="sepUploadNew()" id="sepNewBtn" style="display:none;">📁 New File</button>
+      <button class="btn btn-primary" onclick="sepDownloadZip()" id="sepDownloadBtn" style="display:none;" disabled>⬇ Download ZIP</button>
+      <button class="btn" onclick="backToLanding()">← Back to Tools</button>
+    </div>
+  </div>
+  
+  <!-- Bulk Actions Toolbar -->
+  <div id="sepBulkToolbar" style="display:none; background:#f8f8f8; border-bottom:1px solid #e0e0e0; padding:15px 20px;">
+    <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
+      <label style="font-weight:600; font-size:0.95em;">Bulk Category:</label>
+      <select id="sepBulkCategory" class="category-select" style="width:auto; min-width:200px;">
+        <option value="">Choose category...</option>
+        <option value="police-report">Police Report</option>
+        <option value="vehicle-reg">Vehicle Registration</option>
+        <option value="driver-license">Driver License</option>
+        <option value="civil-id">Civil ID</option>
+        <option value="incident-report">Incident Report</option>
+        <option value="garage-estimation">Garage Estimation</option>
+        <option value="insurance-policy">Insurance Policy</option>
+        <option value="other">Other</option>
+      </select>
+      <button class="btn btn-primary" onclick="sepApplyBulk()">Apply to All Unset</button>
+      <button class="btn" onclick="sepClearAll()">Clear All Categories</button>
+    </div>
+  </div>
+  
+  <div class="sep-content">
+    <div class="sep-upload" id="sepUpload">
+      <div class="upload-box" onclick="document.getElementById('sepFileInput').click()">
+        <div class="icon">📄</div>
+        <h2>Upload your PDF</h2>
+        <p>Click to browse or drag and drop</p>
+        <p style="margin-top: 10px; font-size: 0.9em; color: #999;">Max 50 MB</p>
+      </div>
+      <input type="file" id="sepFileInput" accept=".pdf">
+    </div>
+    
+    <div id="sepPagesGrid" class="pages-grid" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- ANNOTATOR TOOL -->
+<div id="annotatorTool">
+  <div class="menu-bar">
+    <div class="menu-item">📁 File</div>
+    <div class="menu-item">✏️ Edit</div>
+    <div class="menu-item">👁️ View</div>
+    <div class="menu-item">📄 Document</div>
+    <div class="menu-item">💬 Comments</div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <button class="tool-btn" onclick="annOpenFile()">
+        <span>📁</span> Open
+      </button>
+      <button class="tool-btn" onclick="annDownloadPDF()" id="annDownloadBtn" disabled>
+        <span>💾</span> Save
+      </button>
+    </div>
+
+    <div class="toolbar-group">
+      <button class="tool-btn" id="toolSelect" onclick="annSelectTool('select')">
+        <span>🖱️</span> Select
+      </button>
+      <button class="tool-btn active" id="toolDraw" onclick="annSelectTool('draw')">
+        <span>✏️</span> Draw
+      </button>
+      <button class="tool-btn" id="toolHighlight" onclick="annSelectTool('highlight')">
+        <span>🖍️</span> Highlight
+      </button>
+      <button class="tool-btn" id="toolText" onclick="annSelectTool('text')">
+        <span>T</span> Add Text
+      </button>
+      <button class="tool-btn" id="toolEraser" onclick="annSelectTool('eraser')">
+        <span>🧽</span> Eraser
+      </button>
+    </div>
+
+    <div class="toolbar-group">
+      <button class="tool-btn" onclick="annAddStamp('APPROVED')">
+        <span style="color: #107c10;">✓ APPROVED</span>
+      </button>
+      <button class="tool-btn" onclick="annAddStamp('REJECTED')">
+        <span style="color: #d83b01;">✕ REJECTED</span>
+      </button>
+      <button class="tool-btn" onclick="annAddStamp('CONFIDENTIAL')">
+        <span style="color: #ff8c00;">🔒 CONFIDENTIAL</span>
+      </button>
+      <button class="tool-btn" onclick="openStampLibrary()">
+        <span>🏷️</span> Custom Stamps
+      </button>
+    </div>
+
+    <div class="toolbar-group">
+      <button class="tool-btn" onclick="openSignaturePad()">
+        <span>✍️</span> Add Signature
+      </button>
+      <button class="tool-btn" onclick="openSignatureLibrary()">
+        <span>📝</span> Saved Signatures
+      </button>
+    </div>
+
+    <div class="toolbar-group">
+      <button class="tool-btn" onclick="annUndo()">
+        <span>↩️</span> Undo
+      </button>
+      <button class="tool-btn" onclick="annClearPage()">
+        <span>🗑️</span> Clear
+      </button>
+    </div>
+
+    <div class="toolbar-group">
+      <label style="font-size: 12px; color: #666;">Color:</label>
+      <input type="color" value="#ff0000" id="annColor" style="width: 40px; height: 32px; border: 1px solid #c0c0c0; border-radius: 4px; cursor: pointer;">
+      <label style="font-size: 12px; color: #666;">Size:</label>
+      <input type="range" min="1" max="20" value="3" id="annBrush" style="width: 100px;">
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="left-sidebar">
+      <div class="sidebar-icon active" id="iconPages" onclick="annTogglePanel()" title="Pages">
+        📄
+      </div>
+      <div class="sidebar-icon" title="Comments">
+        💬
+      </div>
+      <div class="sidebar-icon" title="Search">
+        🔍
+      </div>
+    </div>
+
+    <div class="thumbnail-panel open" id="annThumbnailPanel">
+      <div class="panel-header">
+        <div class="panel-title">Pages</div>
+        <div class="close-panel" onclick="annTogglePanel()">✕</div>
+      </div>
+      <div class="thumbnail-list" id="annThumbnailList"></div>
+    </div>
+
+    <div class="main-viewer" id="annMainViewer">
+      <div class="ann-upload" id="annUpload">
+        <div class="upload-box" onclick="document.getElementById('annFileInput').click()">
+          <div class="icon">✏️</div>
+          <h2>Upload PDF to Annotate</h2>
+          <p>Click to browse or drag and drop</p>
+          <p style="margin-top: 10px; font-size: 0.9em;">Max 50 MB</p>
         </div>
-        <button id="download-zip">Download Zip</button>
-    </section>
-    <section id="pdf-annotator-tool" class="tool">
-        <h2>PDF Annotator Tool</h2>
-        <p>Add drawings, stamps, signatures, and annotations to your PDFs.</p>
-        <div id="annotation-area" style="border: 2px dashed #fff; padding: 20px;">
-            <p>Annotation features will be available here</p>
-        </div>
-    </section>
+        <input type="file" id="annFileInput" accept=".pdf">
+      </div>
+
+      <div class="page-container" id="annPageContainer" style="display:none;">
+        <img class="page-image" id="annPageImage" alt="PDF Page">
+        <canvas class="annotation-canvas" id="annCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="page-nav">
+      <button class="nav-btn" id="annPrevBtn" onclick="annPrevPage()" disabled>◀</button>
+      <span id="annPageInfo">Page 1 of 1</span>
+      <button class="nav-btn" id="annNextBtn" onclick="annNextPage()" disabled>▶</button>
+    </div>
+    <div class="page-nav">
+      <button class="btn" onclick="backToLanding()">← Back to Tools</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stamp Library Modal -->
+<div class="modal" id="stampLibraryModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Custom Stamps</h2>
+      <button class="close-btn" onclick="closeStampLibrary()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="library-actions">
+        <button class="btn btn-primary" onclick="createTextStamp()">+ Create Text Stamp</button>
+        <button class="btn btn-primary" onclick="uploadImageStamp()">+ Upload Image Stamp</button>
+        <input type="file" id="stampImageInput" accept="image/*" style="display:none;">
+      </div>
+      <div class="library-grid" id="stampLibraryGrid">
+        <!-- Saved stamps will appear here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Text Stamp Creator Modal -->
+<div class="modal" id="textStampModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Create Text Stamp</h2>
+      <button class="close-btn" onclick="closeTextStampModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Stamp Text:</label>
+        <input type="text" id="stampText" placeholder="Enter stamp text (e.g., DRAFT, URGENT)" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Color:</label>
+        <input type="color" id="stampColor" value="#ff0000" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Font Size:</label>
+        <input type="number" id="stampFontSize" value="48" min="12" max="120" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Style:</label>
+        <select id="stampStyle" class="form-input">
+          <option value="bold">Bold</option>
+          <option value="italic">Italic</option>
+          <option value="outline">Outline</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="saveTextStamp()">Save Stamp</button>
+    </div>
+  </div>
+</div>
+
+<!-- Signature Pad Modal -->
+<div class="modal" id="signaturePadModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Draw Your Signature</h2>
+      <button class="close-btn" onclick="closeSignaturePad()">✕</button>
+    </div>
+    <div class="modal-body">
+      <canvas id="signatureCanvas" width="600" height="200" style="border: 2px solid #d0d0d0; border-radius: 8px; background: white; cursor: crosshair;"></canvas>
+      <div style="margin-top: 20px; display: flex; gap: 12px;">
+        <button class="btn" onclick="clearSignatureCanvas()">Clear</button>
+        <button class="btn btn-primary" onclick="saveSignature()">Save Signature</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Signature Library Modal -->
+<div class="modal" id="signatureLibraryModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Saved Signatures</h2>
+      <button class="close-btn" onclick="closeSignatureLibrary()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="library-actions">
+        <button class="btn btn-primary" onclick="openSignaturePad()">+ Draw New Signature</button>
+        <button class="btn btn-primary" onclick="uploadSignatureImage()">+ Upload Signature Image</button>
+        <input type="file" id="signatureImageInput" accept="image/*" style="display:none;">
+      </div>
+      <div class="library-grid" id="signatureLibraryGrid">
+        <!-- Saved signatures will appear here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Loading...</div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// Navigation
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('separatorCard')?.addEventListener('click', ()=>openTool('separator'));
+  document.getElementById('annotatorCard')?.addEventListener('click', ()=>openTool('annotator'));
+});
+
+function openTool(tool){
+  document.getElementById('landingPage').style.display='none';
+  if(tool==='separator'){
+    document.getElementById('separatorTool').classList.add('active');
+  } else if(tool==='annotator'){
+    document.getElementById('annotatorTool').classList.add('active');
+  }
+}
+
+function backToLanding(){
+  document.getElementById('separatorTool').classList.remove('active');
+  document.getElementById('annotatorTool').classList.remove('active');
+  document.getElementById('landingPage').style.display='flex';
+  sepReset();
+  annReset();
+}
+
+// Utilities
+function showLoading(text){ document.getElementById('loadingText').textContent=text; document.getElementById('loading').classList.add('active'); }
+function hideLoading(){ document.getElementById('loading').classList.remove('active'); }
+function showToast(msg,type='success'){
+  const toast=document.createElement('div');
+  toast.className=`toast ${type}`;
+  toast.textContent=msg;
+  document.getElementById('toastContainer').appendChild(toast);
+  setTimeout(()=>toast.remove(),3000);
+}
+
+
+// ============================================
+// SEPARATOR TOOL JAVASCRIPT
+// ============================================
+let sepPdfDoc=null, sepTotalPages=0, sepPageData=new Map(), sepOriginalFile=null;
+
+document.getElementById('sepFileInput')?.addEventListener('change', async (e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  if(file.type!=='application/pdf'){ showToast('Please upload PDF','error'); return; }
+  if(file.size>50*1024*1024){ showToast('File exceeds 50MB','error'); return; }
+  
+  showLoading('Loading PDF...');
+  sepOriginalFile=file;
+  const buf=await file.arrayBuffer();
+  sepPdfDoc=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+  sepTotalPages=sepPdfDoc.numPages;
+  
+  for(let i=1; i<=sepTotalPages; i++){
+    sepPageData.set(i, {rotation:0, flip:{h:false,v:false}, category:null});
+  }
+  
+  await sepRenderAll();
+  document.getElementById('sepUpload').style.display='none';
+  document.getElementById('sepPagesGrid').style.display='grid';
+  document.getElementById('sepBulkToolbar').style.display='block';
+  document.getElementById('sepNewBtn').style.display='block';
+  document.getElementById('sepDownloadBtn').style.display='block';
+  hideLoading();
+  showToast(`Loaded ${sepTotalPages} pages`,'success');
+});
+
+async function sepRenderAll(){
+  const grid=document.getElementById('sepPagesGrid');
+  grid.innerHTML='';
+  
+  for(let i=1; i<=sepTotalPages; i++){
+    const card=document.createElement('div');
+    card.className='page-card';
+    card.dataset.page=i;
+    card.draggable=true; // Enable dragging
+    
+    const page=await sepPdfDoc.getPage(i);
+    const vp=page.getViewport({scale:0.5});
+    const canvas=document.createElement('canvas');
+    canvas.width=vp.width;
+    canvas.height=vp.height;
+    await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+    const imgData=canvas.toDataURL('image/jpeg',0.7);
+    
+    card.innerHTML=`
+      <div class="page-header">
+        <div class="page-number">Page ${i}</div>
+        <div class="page-badge">✓</div>
+      </div>
+      <div class="page-preview">
+        <img src="${imgData}" alt="Page ${i}">
+      </div>
+      <div class="page-controls">
+        <button class="control-btn" onclick="sepRotate(${i},-90)">↺</button>
+        <button class="control-btn" onclick="sepRotate(${i},90)">↻</button>
+        <button class="control-btn" onclick="sepFlip(${i},'h')">↔</button>
+        <button class="control-btn" onclick="sepFlip(${i},'v')">↕</button>
+      </div>
+      <select class="category-select" onchange="sepSetCategory(${i},this.value)">
+        <option value="">Select category...</option>
+        <option value="police-report">Police Report</option>
+        <option value="vehicle-reg">Vehicle Registration</option>
+        <option value="driver-license">Driver License</option>
+        <option value="civil-id">Civil ID</option>
+        <option value="incident-report">Incident Report</option>
+        <option value="garage-estimation">Garage Estimation</option>
+        <option value="insurance-policy">Insurance Policy</option>
+        <option value="other">Other</option>
+      </select>
+    `;
+    
+    grid.appendChild(card);
+  }
+  
+  // Initialize drag and drop
+  sepInitDragDrop();
+}
+
+// Drag and Drop Reordering
+let sepDragSrcPage = null;
+
+function sepInitDragDrop(){
+  const grid=document.getElementById('sepPagesGrid');
+  
+  grid.addEventListener('dragstart', e => {
+    const card = e.target.closest('.page-card');
+    if(!card) return;
+    
+    sepDragSrcPage = parseInt(card.dataset.page);
+    card.style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  
+  grid.addEventListener('dragend', e => {
+    const card = e.target.closest('.page-card');
+    if(card) card.style.opacity = '1';
+    
+    document.querySelectorAll('.page-card').forEach(c => {
+      c.classList.remove('drag-over');
+    });
+    sepDragSrcPage = null;
+  });
+  
+  grid.addEventListener('dragover', e => {
+    e.preventDefault();
+    const card = e.target.closest('.page-card');
+    if(!card || sepDragSrcPage === null) return;
+    
+    const targetPage = parseInt(card.dataset.page);
+    if(targetPage === sepDragSrcPage) return;
+    
+    document.querySelectorAll('.page-card').forEach(c => c.classList.remove('drag-over'));
+    card.classList.add('drag-over');
+    
+    e.dataTransfer.dropEffect = 'move';
+  });
+  
+  grid.addEventListener('drop', e => {
+    e.preventDefault();
+    const card = e.target.closest('.page-card');
+    if(!card || sepDragSrcPage === null) return;
+    
+    const targetPage = parseInt(card.dataset.page);
+    if(targetPage === sepDragSrcPage) return;
+    
+    // Reorder pages in the data
+    const srcData = sepPageData.get(sepDragSrcPage);
+    const targetData = sepPageData.get(targetPage);
+    
+    // Swap the data
+    sepPageData.set(sepDragSrcPage, targetData);
+    sepPageData.set(targetPage, srcData);
+    
+    // Update page numbers in cards
+    const srcCard = document.querySelector(`[data-page="${sepDragSrcPage}"]`);
+    const targetCard = document.querySelector(`[data-page="${targetPage}"]`);
+    
+    if(srcCard && targetCard){
+      // Swap the cards visually
+      const srcParent = srcCard.parentNode;
+      const srcNext = srcCard.nextSibling;
+      const targetParent = targetCard.parentNode;
+      const targetNext = targetCard.nextSibling;
+      
+      if(srcNext === targetCard){
+        srcParent.insertBefore(targetCard, srcCard);
+      } else if(targetNext === srcCard){
+        targetParent.insertBefore(srcCard, targetCard);
+      } else {
+        srcParent.insertBefore(targetCard, srcNext);
+        targetParent.insertBefore(srcCard, targetNext);
+      }
+      
+      // Swap dataset.page values
+      srcCard.dataset.page = targetPage;
+      targetCard.dataset.page = sepDragSrcPage;
+      
+      // Update page number display
+      srcCard.querySelector('.page-number').textContent = `Page ${targetPage}`;
+      targetCard.querySelector('.page-number').textContent = `Page ${sepDragSrcPage}`;
+    }
+    
+    showToast('Pages reordered', 'success');
+  });
+}
+
+// Bulk Actions
+function sepApplyBulk(){
+  const category = document.getElementById('sepBulkCategory').value;
+  if(!category){
+    showToast('Please select a category', 'error');
+    return;
+  }
+  
+  let applied = 0;
+  sepPageData.forEach((data, page) => {
+    if(!data.category){
+      data.category = category;
+      const card = document.querySelector(`[data-page="${page}"]`);
+      if(card){
+        card.querySelector('.category-select').value = category;
+        card.classList.add('categorized');
+      }
+      applied++;
+    }
+  });
+  
+  if(applied === 0){
+    showToast('All pages already have categories', 'success');
+  } else {
+    showToast(`Applied category to ${applied} page${applied !== 1 ? 's' : ''}`, 'success');
+  }
+  
+  sepUpdateDownloadBtn();
+}
+
+function sepClearAll(){
+  if(!confirm('Clear all categories?')) return;
+  
+  sepPageData.forEach((data, page) => {
+    data.category = null;
+    const card = document.querySelector(`[data-page="${page}"]`);
+    if(card){
+      card.querySelector('.category-select').value = '';
+      card.classList.remove('categorized');
+    }
+  });
+  
+  sepUpdateDownloadBtn();
+  showToast('All categories cleared', 'success');
+}
+
+function sepRotate(page,delta){
+  const data=sepPageData.get(page);
+  data.rotation=(data.rotation+delta+360)%360;
+  const img=document.querySelector(`[data-page="${page}"] .page-preview img`);
+  sepApplyTransform(img,data);
+}
+
+function sepFlip(page,dir){
+  const data=sepPageData.get(page);
+  data.flip[dir]=!data.flip[dir];
+  const img=document.querySelector(`[data-page="${page}"] .page-preview img`);
+  sepApplyTransform(img,data);
+}
+
+function sepApplyTransform(img,data){
+  const scaleX=data.flip.h?-1:1;
+  const scaleY=data.flip.v?-1:1;
+  img.style.transform=`rotate(${data.rotation}deg) scale(${scaleX}, ${scaleY})`;
+}
+
+function sepSetCategory(page,value){
+  const data=sepPageData.get(page);
+  data.category=value||null;
+  const card=document.querySelector(`[data-page="${page}"]`);
+  card.classList.toggle('categorized',!!value);
+  sepUpdateDownloadBtn();
+}
+
+function sepUpdateDownloadBtn(){
+  let hasCategories=false;
+  sepPageData.forEach(d=>{ if(d.category) hasCategories=true; });
+  document.getElementById('sepDownloadBtn').disabled=!hasCategories;
+}
+
+async function sepDownloadZip(){
+  showLoading('Building ZIP...');
+  try{
+    const {PDFDocument,degrees}=PDFLib;
+    const srcPdf=await PDFDocument.load(await sepOriginalFile.arrayBuffer());
+    const zip=new JSZip();
+    
+    const categorized={};
+    sepPageData.forEach((data,num)=>{
+      if(data.category){
+        if(!categorized[data.category]) categorized[data.category]=[];
+        categorized[data.category].push(num);
+      }
+    });
+    
+    for(const [cat,pages] of Object.entries(categorized)){
+      const newPdf=await PDFDocument.create();
+      for(const num of pages){
+        const [pg]=await newPdf.copyPages(srcPdf,[num-1]);
+        const data=sepPageData.get(num);
+        if(data.rotation) pg.setRotation(degrees(data.rotation));
+        newPdf.addPage(pg);
+      }
+      const bytes=await newPdf.save();
+      zip.file(`${cat}.pdf`,bytes);
+    }
+    
+    const blob=await zip.generateAsync({type:'blob'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='Categorized_PDFs.zip';
+    a.click();
+    URL.revokeObjectURL(url);
+    hideLoading();
+    showToast('ZIP downloaded','success');
+  } catch(err){
+    hideLoading();
+    showToast('Download failed','error');
+  }
+}
+
+function sepUploadNew(){ document.getElementById('sepFileInput').click(); }
+
+function sepReset(){
+  sepPdfDoc=null;
+  sepPageData.clear();
+  document.getElementById('sepUpload').style.display='flex';
+  document.getElementById('sepPagesGrid').style.display='none';
+  document.getElementById('sepBulkToolbar').style.display='none';
+  document.getElementById('sepNewBtn').style.display='none';
+  document.getElementById('sepDownloadBtn').style.display='none';
+  document.getElementById('sepFileInput').value='';
+}
+
+
+// ============================================
+// ANNOTATOR TOOL JAVASCRIPT
+// ============================================
+let annPdfDoc=null, annCurrentPage=1, annTotalPages=0, annOriginalFile=null, annAnnotations={}, annCurrentTool='draw';
+
+// NEW: Store individual annotation objects (stamps, text, signatures) for moving
+let annObjects = {}; // {pageNum: [{type, data, x, y, width, height}]}
+
+// Stamp and Signature Storage (localStorage)
+let customStamps = JSON.parse(localStorage.getItem('customStamps') || '[]');
+let savedSignatures = JSON.parse(localStorage.getItem('savedSignatures') || '[]');
+
+document.getElementById('annFileInput')?.addEventListener('change', async (e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  if(file.type!=='application/pdf'){ showToast('Please upload PDF','error'); return; }
+  if(file.size>50*1024*1024){ showToast('File exceeds 50MB','error'); return; }
+  
+  showLoading('Loading PDF...');
+  annOriginalFile=file;
+  const buf=await file.arrayBuffer();
+  annPdfDoc=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+  annTotalPages=annPdfDoc.numPages;
+  
+  await annRenderThumbnails();
+  await annLoadPage(1);
+  
+  document.getElementById('annUpload').style.display='none';
+  document.getElementById('annPageContainer').style.display='block';
+  document.getElementById('annDownloadBtn').disabled=false;
+  hideLoading();
+  showToast(`Loaded ${annTotalPages} pages`,'success');
+});
+
+async function annRenderThumbnails(){
+  const list=document.getElementById('annThumbnailList');
+  list.innerHTML='';
+  
+  for(let i=1; i<=annTotalPages; i++){
+    const item=document.createElement('div');
+    item.className='thumbnail-item';
+    item.onclick=()=>annLoadPage(i);
+    
+    const img=document.createElement('img');
+    img.className='thumbnail-img';
+    
+    const label=document.createElement('div');
+    label.className='thumbnail-label';
+    label.textContent=i;
+    
+    item.appendChild(img);
+    item.appendChild(label);
+    list.appendChild(item);
+    
+    const page=await annPdfDoc.getPage(i);
+    const vp=page.getViewport({scale:0.3});
+    const canvas=document.createElement('canvas');
+    canvas.width=vp.width;
+    canvas.height=vp.height;
+    await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+    img.src=canvas.toDataURL('image/jpeg',0.7);
+  }
+}
+
+async function annLoadPage(num){
+  annCurrentPage=num;
+  
+  // Clear object cache when changing pages
+  clearObjectCache();
+  
+  document.querySelectorAll('#annThumbnailList .thumbnail-item').forEach((el,i)=>{
+    el.classList.toggle('active', i===num-1);
+  });
+  
+  const page=await annPdfDoc.getPage(num);
+  
+  // Auto-fit to viewport instead of fixed zoom
+  const viewer=document.getElementById('annMainViewer');
+  const viewerWidth=viewer.clientWidth - 100; // Padding
+  const viewerHeight=viewer.clientHeight - 100;
+  
+  const viewport1=page.getViewport({scale:1});
+  const scaleX=viewerWidth/viewport1.width;
+  const scaleY=viewerHeight/viewport1.height;
+  const scale=Math.min(scaleX,scaleY,2); // Max 2x, auto-fit smaller
+  
+  const vp=page.getViewport({scale:scale});
+  const canvas=document.createElement('canvas');
+  canvas.width=vp.width;
+  canvas.height=vp.height;
+  await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+  
+  const img=document.getElementById('annPageImage');
+  img.src=canvas.toDataURL('image/png');
+  img.onload=()=>annInitCanvas();
+  
+  annUpdateUI();
+}
+
+function annUpdateUI(){
+  document.getElementById('annPageInfo').textContent=`Page ${annCurrentPage} of ${annTotalPages}`;
+  document.getElementById('annPrevBtn').disabled=annCurrentPage===1;
+  document.getElementById('annNextBtn').disabled=annCurrentPage===annTotalPages;
+}
+
+function annInitCanvas(){
+  const img=document.getElementById('annPageImage');
+  const canvas=document.getElementById('annCanvas');
+  canvas.width=img.naturalWidth;
+  canvas.height=img.naturalHeight;
+  canvas.style.width=img.offsetWidth+'px';
+  canvas.style.height=img.offsetHeight+'px';
+  
+  // This will load/render AND attach listeners if not attached yet
+  annAttachDrawing();
+}
+
+
+// CRITICAL FIX: Global flag to attach listeners only once
+let drawingListenersAttached = false;
+
+// Image cache - store actual Image objects, not data URLs
+let objectImageCache = new Map();
+
+function annAttachDrawing(){
+  if (!drawingListenersAttached) {
+    attachListeners();
+    drawingListenersAttached = true;
+  }
+  // Render initial state
+  renderAnnotationsOnly();
+}
+
+// Render ONLY annotations (not PDF background)
+function renderAnnotationsOnly() {
+  const canvas = document.getElementById('annCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  // STEP 1: Clear annotation canvas completely
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // STEP 2: Draw all annotations synchronously
+  if (!annObjects[annCurrentPage]) return;
+  
+  const objects = annObjects[annCurrentPage];
+  
+  objects.forEach((obj, i) => {
+    if (obj.type === 'text') {
+      ctx.font = `bold ${obj.fontSize}px Arial`;
+      ctx.fillStyle = obj.color;
+      ctx.textBaseline = 'top';
+      ctx.fillText(obj.text, obj.x, obj.y);
+    } else if (obj.type === 'stamp' || obj.type === 'signature') {
+      // Use cached image (already loaded)
+      const img = objectImageCache.get(i);
+      if (img && img.complete) {
+        ctx.drawImage(img, obj.x, obj.y, obj.width, obj.height);
+      }
+    }
+  });
+}
+
+// Pre-load object images when created
+function addObjectWithImage(objData) {
+  if (!annObjects[annCurrentPage]) annObjects[annCurrentPage] = [];
+  
+  const index = annObjects[annCurrentPage].length;
+  
+  // Create Image object immediately
+  if (objData.type === 'stamp' || objData.type === 'signature') {
+    const img = new Image();
+    img.onload = () => {
+      objectImageCache.set(index, img);
+      renderAnnotationsOnly();
+    };
+    img.src = objData.dataURL;
+  }
+  
+  // Add to objects array
+  annObjects[annCurrentPage].push(objData);
+  
+  // If text, render immediately
+  if (objData.type === 'text') {
+    renderAnnotationsOnly();
+  }
+}
+
+// Clear cache when changing pages
+function clearObjectCache() {
+  objectImageCache.clear();
+}
+
+function attachListeners() {
+  const canvas = document.getElementById('annCanvas');
+  const ctx = canvas.getContext('2d');
+  let drawing = false, dragging = false, selectedObj = null;
+  let startX, startY, dragOffX, dragOffY, redrawPending = false;
+  
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (canvas.width / r.width),
+      y: (e.clientY - r.top) * (canvas.height / r.height),
+      sx: e.clientX, sy: e.clientY
+    };
+  }
+  
+  function findObj(x, y) {
+    if (!annObjects[annCurrentPage]) return null;
+    for (let i = annObjects[annCurrentPage].length - 1; i >= 0; i--) {
+      const o = annObjects[annCurrentPage][i];
+      if (o.type === 'text') {
+        const tmp = document.createElement('canvas').getContext('2d');
+        tmp.font = `bold ${o.fontSize}px Arial`;
+        const w = tmp.measureText(o.text).width;
+        if (x >= o.x && x <= o.x + w && y >= o.y && y <= o.y + o.fontSize) return i;
+      } else if (o.type === 'stamp' || o.type === 'signature') {
+        if (x >= o.x && x <= o.x + o.width && y >= o.y && y <= o.y + o.height) return i;
+      }
+    }
+    return null;
+  }
+  
+  function scheduleRedraw() {
+    if (redrawPending) return;
+    redrawPending = true;
+    requestAnimationFrame(() => {
+      renderAnnotationsOnly();
+      redrawPending = false;
+    });
+  }
+  
+  canvas.onclick = e => {
+    if (annCurrentTool === 'text') {
+      const p = getPos(e);
+      const cont = canvas.parentElement;
+      const col = document.getElementById('annColor').value;
+      const ix = p.sx - cont.getBoundingClientRect().left;
+      const iy = p.sy - cont.getBoundingClientRect().top;
+      
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.placeholder = 'Type and press Enter...';
+      inp.style.cssText = `position:absolute;left:${ix}px;top:${iy}px;font-size:18px;color:${col};border:2px solid ${col};background:white;padding:8px 12px;font-family:Arial;z-index:1000;min-width:250px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.2);outline:none`;
+      
+      cont.style.position = 'relative';
+      cont.appendChild(inp);
+      inp.focus();
+      
+      let done = false;
+      function fin() {
+        if (done) return;
+        done = true;
+        const txt = inp.value.trim();
+        if (txt) {
+          if (!annObjects[annCurrentPage]) annObjects[annCurrentPage] = [];
+          addObjectWithImage({ type: 'text', text: txt, x: p.x, y: p.y, color: col, fontSize: 24 });
+          setTimeout(() => annSaveState(), 50);
+          showToast('Text added', 'success');
+        }
+        if (inp.parentNode) inp.parentNode.removeChild(inp);
+      }
+      
+      inp.onkeydown = e => {
+        if (e.key === 'Enter') { e.preventDefault(); fin(); }
+        if (e.key === 'Escape') { done = true; if (inp.parentNode) inp.parentNode.removeChild(inp); }
+      };
+      inp.onblur = () => setTimeout(fin, 100);
+    }
+  };
+  
+  canvas.onmousedown = e => {
+    const p = getPos(e);
+    
+    if (annCurrentTool === 'select') {
+      const h = findObj(p.x, p.y);
+      if (h !== null) {
+        selectedObj = h;
+        dragging = true;
+        const o = annObjects[annCurrentPage][h];
+        dragOffX = p.x - o.x;
+        dragOffY = p.y - o.y;
+        canvas.style.cursor = 'grabbing';
+      } else {
+        selectedObj = null;
+        scheduleRedraw();
+      }
+      return;
+    }
+    
+    if (annCurrentTool === 'text') return;
+    
+    startX = p.x;
+    startY = p.y;
+    drawing = true;
+    
+    if (annCurrentTool === 'draw' || annCurrentTool === 'highlight' || annCurrentTool === 'eraser') {
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+    }
+  };
+  
+  canvas.onmousemove = e => {
+    const p = getPos(e);
+    
+    if (annCurrentTool === 'select' && dragging && selectedObj !== null) {
+      const o = annObjects[annCurrentPage][selectedObj];
+      o.x = p.x - dragOffX;
+      o.y = p.y - dragOffY;
+      scheduleRedraw();
+      return;
+    }
+    
+    if (annCurrentTool === 'select' && !dragging) {
+      canvas.style.cursor = findObj(p.x, p.y) !== null ? 'grab' : 'pointer';
+    }
+    
+    if (!drawing) return;
+    
+    const col = document.getElementById('annColor').value;
+    const sz = parseInt(document.getElementById('annBrush').value);
+    
+    if (annCurrentTool === 'draw') {
+      ctx.strokeStyle = col;
+      ctx.lineWidth = sz;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    } else if (annCurrentTool === 'highlight') {
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = col;
+      ctx.fillRect(startX, startY - sz * 2, p.x - startX, sz * 4);
+      ctx.globalAlpha = 1;
+      startX = p.x;
+    } else if (annCurrentTool === 'eraser') {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = sz * 2;
+      ctx.lineCap = 'round';
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+  };
+  
+  canvas.onmouseup = canvas.onmouseleave = () => {
+    if (dragging) {
+      dragging = false;
+      canvas.style.cursor = 'pointer';
+      setTimeout(() => annSaveState(), 50);
+      return;
+    }
+    
+    if (drawing) {
+      drawing = false;
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+      annSaveState();
+    }
+  };
+}
+
+function annSaveState(){
+  const canvas=document.getElementById('annCanvas');
+  if(!annAnnotations[annCurrentPage]) annAnnotations[annCurrentPage]=[];
+  annAnnotations[annCurrentPage].push(canvas.toDataURL('image/png'));
+}
+
+function annSelectTool(tool){
+  annCurrentTool=tool;
+  ['Select','Draw','Highlight','Text','Eraser'].forEach(t=>{
+    const btn=document.getElementById('tool'+t);
+    if(btn) btn.classList.toggle('active', t.toLowerCase()===tool);
+  });
+  
+  // Change cursor based on tool
+  const canvas=document.getElementById('annCanvas');
+  if(tool==='eraser') canvas.style.cursor='grab';
+  else if(tool==='text') canvas.style.cursor='text';
+  else if(tool==='select') canvas.style.cursor='pointer';
+  else canvas.style.cursor='crosshair';
+  
+  console.log('Tool selected:', tool);
+}
+
+function annAddStamp(text){
+  const canvas=document.getElementById('annCanvas');
+  const ctx=canvas.getContext('2d');
+  
+  // Create stamp as canvas
+  const stampCanvas=document.createElement('canvas');
+  stampCanvas.width=400;
+  stampCanvas.height=100;
+  const stampCtx=stampCanvas.getContext('2d');
+  
+  stampCtx.save();
+  stampCtx.translate(200,50);
+  stampCtx.rotate(-0.15);
+  stampCtx.font='bold 48px Arial';
+  
+  let color='#d83b01';
+  if(text==='APPROVED') color='#107c10';
+  else if(text==='CONFIDENTIAL') color='#ff8c00';
+  
+  stampCtx.strokeStyle=color;
+  stampCtx.lineWidth=4;
+  stampCtx.strokeText(text,-stampCtx.measureText(text).width/2,0);
+  stampCtx.fillStyle=color+'33';
+  stampCtx.fillText(text,-stampCtx.measureText(text).width/2,0);
+  stampCtx.restore();
+  
+  const dataURL=stampCanvas.toDataURL('image/png');
+  
+  // Add as movable object
+  const cx=canvas.width/2;
+  const cy=canvas.height/2;
+  
+  addObjectWithImage({
+    type:'stamp',
+    dataURL:dataURL,
+    x:cx-200,
+    y:cy-50,
+    width:400,
+    height:100
+  });
+  
+  setTimeout(() => annSaveState(), 50);
+  showToast(`${text} stamp added`,'success');
+}
+
+function annUndo(){
+  const hist=annAnnotations[annCurrentPage];
+  if(!hist||!hist.length){ showToast('Nothing to undo','error'); return; }
+  hist.pop();
+  const canvas=document.getElementById('annCanvas');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(hist.length){
+    const img=new Image();
+    img.onload=()=>ctx.drawImage(img,0,0);
+    img.src=hist[hist.length-1];
+  }
+}
+
+function annClearPage(){
+  if(!confirm('Clear all annotations on this page?')) return;
+  const canvas=document.getElementById('annCanvas');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  annAnnotations[annCurrentPage]=[];
+  showToast('Page cleared','success');
+}
+
+function annPrevPage(){ if(annCurrentPage>1) annLoadPage(annCurrentPage-1); }
+function annNextPage(){ if(annCurrentPage<annTotalPages) annLoadPage(annCurrentPage+1); }
+
+function annOpenFile(){ document.getElementById('annFileInput').click(); }
+
+async function annDownloadPDF(){
+  showLoading('Building PDF...');
+  try{
+    const {PDFDocument}=PDFLib;
+    const doc=await PDFDocument.load(await annOriginalFile.arrayBuffer());
+    
+    for(let i=1; i<=annTotalPages; i++){
+      const hist=annAnnotations[i];
+      if(hist&&hist.length){
+        const base64=hist[hist.length-1].split(',')[1];
+        const img=await doc.embedPng(base64);
+        const page=doc.getPages()[i-1];
+        const{width,height}=page.getSize();
+        page.drawImage(img,{x:0,y:0,width,height});
+      }
+    }
+    
+    const bytes=await doc.save();
+    const blob=new Blob([bytes],{type:'application/pdf'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='Annotated.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
+    hideLoading();
+    showToast('PDF saved','success');
+  } catch(err){
+    hideLoading();
+    showToast('Save failed','error');
+  }
+}
+
+function annTogglePanel(){
+  document.getElementById('annThumbnailPanel').classList.toggle('open');
+  document.getElementById('iconPages').classList.toggle('active');
+}
+
+// ============================================
+// STAMP LIBRARY FUNCTIONS
+// ============================================
+function openStampLibrary(){
+  renderStampLibrary();
+  document.getElementById('stampLibraryModal').classList.add('active');
+}
+
+function closeStampLibrary(){
+  document.getElementById('stampLibraryModal').classList.remove('active');
+}
+
+function renderStampLibrary(){
+  const grid=document.getElementById('stampLibraryGrid');
+  if(customStamps.length===0){
+    grid.innerHTML='<div class="empty-library">No custom stamps yet. Create one!</div>';
+    return;
+  }
+  
+  grid.innerHTML='';
+  customStamps.forEach((stamp,index)=>{
+    const item=document.createElement('div');
+    item.className='library-item';
+    item.onclick=()=>placeCustomStamp(stamp);
+    
+    if(stamp.type==='text'){
+      const canvas=document.createElement('canvas');
+      canvas.width=200;
+      canvas.height=80;
+      const ctx=canvas.getContext('2d');
+      ctx.font=`bold ${stamp.fontSize}px Arial`;
+      ctx.fillStyle=stamp.color;
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText(stamp.text,100,40);
+      item.appendChild(canvas);
+    } else if(stamp.type==='image'){
+      const img=document.createElement('img');
+      img.src=stamp.dataURL;
+      item.appendChild(img);
+    }
+    
+    const deleteBtn=document.createElement('button');
+    deleteBtn.className='library-item-delete';
+    deleteBtn.textContent='✕';
+    deleteBtn.onclick=(e)=>{
+      e.stopPropagation();
+      deleteStamp(index);
+    };
+    item.appendChild(deleteBtn);
+    
+    grid.appendChild(item);
+  });
+}
+
+function createTextStamp(){
+  closeStampLibrary();
+  document.getElementById('textStampModal').classList.add('active');
+}
+
+function closeTextStampModal(){
+  document.getElementById('textStampModal').classList.remove('active');
+}
+
+function saveTextStamp(){
+  const text=document.getElementById('stampText').value.trim();
+  if(!text){ showToast('Please enter stamp text','error'); return; }
+  
+  const stamp={
+    type:'text',
+    text:text,
+    color:document.getElementById('stampColor').value,
+    fontSize:parseInt(document.getElementById('stampFontSize').value),
+    style:document.getElementById('stampStyle').value
+  };
+  
+  customStamps.push(stamp);
+  localStorage.setItem('customStamps',JSON.stringify(customStamps));
+  
+  closeTextStampModal();
+  showToast('Stamp saved!','success');
+  
+  // Clear form
+  document.getElementById('stampText').value='';
+}
+
+function uploadImageStamp(){
+  document.getElementById('stampImageInput').click();
+}
+
+document.getElementById('stampImageInput')?.addEventListener('change',async (e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    const stamp={
+      type:'image',
+      dataURL:ev.target.result
+    };
+    customStamps.push(stamp);
+    localStorage.setItem('customStamps',JSON.stringify(customStamps));
+    showToast('Image stamp saved!','success');
+    renderStampLibrary();
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+});
+
+function placeCustomStamp(stamp){
+  const canvas=document.getElementById('annCanvas');
+  const cx=canvas.width/2;
+  const cy=canvas.height/2;
+  
+  if(stamp.type==='text'){
+    // Create stamp image
+    const stampCanvas=document.createElement('canvas');
+    stampCanvas.width=400;
+    stampCanvas.height=100;
+    const ctx=stampCanvas.getContext('2d');
+    
+    ctx.save();
+    ctx.translate(200,50);
+    ctx.rotate(-0.15);
+    ctx.font=`${stamp.style==='bold'?'bold':stamp.style==='italic'?'italic':''} ${stamp.fontSize}px Arial`;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    
+    if(stamp.style==='outline'){
+      ctx.strokeStyle=stamp.color;
+      ctx.lineWidth=3;
+      ctx.strokeText(stamp.text,0,0);
+    } else {
+      ctx.fillStyle=stamp.color;
+      ctx.fillText(stamp.text,0,0);
+    }
+    ctx.restore();
+    
+    const dataURL=stampCanvas.toDataURL('image/png');
+    
+    addObjectWithImage({
+      type:'stamp',
+      dataURL:dataURL,
+      x:cx-200,
+      y:cy-50,
+      width:400,
+      height:100
+    });
+    
+    setTimeout(() => annSaveState(), 50);
+  } else if(stamp.type==='image'){
+    const img=new Image();
+    img.onload=()=>{
+      const maxW=canvas.width*0.3;
+      const maxH=canvas.height*0.3;
+      let w=img.width;
+      let h=img.height;
+      
+      if(w>maxW){ h=h*(maxW/w); w=maxW; }
+      if(h>maxH){ w=w*(maxH/h); h=maxH; }
+      
+      addObjectWithImage({
+        type:'stamp',
+        dataURL:stamp.dataURL,
+        x:cx-w/2,
+        y:cy-h/2,
+        width:w,
+        height:h
+      });
+      
+      setTimeout(() => annSaveState(), 50);
+    };
+    img.src=stamp.dataURL;
+  }
+  
+  closeStampLibrary();
+  showToast('Stamp placed!','success');
+}
+
+function deleteStamp(index){
+  if(!confirm('Delete this stamp?')) return;
+  customStamps.splice(index,1);
+  localStorage.setItem('customStamps',JSON.stringify(customStamps));
+  renderStampLibrary();
+  showToast('Stamp deleted','success');
+}
+
+// ============================================
+// SIGNATURE FUNCTIONS
+// ============================================
+let signatureDrawing=false;
+
+function openSignaturePad(){
+  closeSignatureLibrary();
+  document.getElementById('signaturePadModal').classList.add('active');
+  initSignaturePad();
+}
+
+function closeSignaturePad(){
+  document.getElementById('signaturePadModal').classList.remove('active');
+}
+
+function initSignaturePad(){
+  const canvas=document.getElementById('signatureCanvas');
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='white';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  
+  let drawing=false;
+  
+  canvas.onmousedown=(e)=>{
+    drawing=true;
+    const rect=canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX-rect.left,e.clientY-rect.top);
+  };
+  
+  canvas.onmousemove=(e)=>{
+    if(!drawing) return;
+    const rect=canvas.getBoundingClientRect();
+    ctx.strokeStyle='#000';
+    ctx.lineWidth=2;
+    ctx.lineCap='round';
+    ctx.lineTo(e.clientX-rect.left,e.clientY-rect.top);
+    ctx.stroke();
+  };
+  
+  canvas.onmouseup=()=>drawing=false;
+  canvas.onmouseleave=()=>drawing=false;
+}
+
+function clearSignatureCanvas(){
+  const canvas=document.getElementById('signatureCanvas');
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='white';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
+function saveSignature(){
+  const canvas=document.getElementById('signatureCanvas');
+  const dataURL=canvas.toDataURL('image/png');
+  
+  savedSignatures.push({dataURL:dataURL,date:new Date().toISOString()});
+  localStorage.setItem('savedSignatures',JSON.stringify(savedSignatures));
+  
+  closeSignaturePad();
+  showToast('Signature saved!','success');
+}
+
+function openSignatureLibrary(){
+  renderSignatureLibrary();
+  document.getElementById('signatureLibraryModal').classList.add('active');
+}
+
+function closeSignatureLibrary(){
+  document.getElementById('signatureLibraryModal').classList.remove('active');
+}
+
+function renderSignatureLibrary(){
+  const grid=document.getElementById('signatureLibraryGrid');
+  if(savedSignatures.length===0){
+    grid.innerHTML='<div class="empty-library">No saved signatures yet. Draw one!</div>';
+    return;
+  }
+  
+  grid.innerHTML='';
+  savedSignatures.forEach((sig,index)=>{
+    const item=document.createElement('div');
+    item.className='library-item';
+    item.onclick=()=>placeSignature(sig);
+    
+    const img=document.createElement('img');
+    img.src=sig.dataURL;
+    item.appendChild(img);
+    
+    const deleteBtn=document.createElement('button');
+    deleteBtn.className='library-item-delete';
+    deleteBtn.textContent='✕';
+    deleteBtn.onclick=(e)=>{
+      e.stopPropagation();
+      deleteSignature(index);
+    };
+    item.appendChild(deleteBtn);
+    
+    grid.appendChild(item);
+  });
+}
+
+function uploadSignatureImage(){
+  document.getElementById('signatureImageInput').click();
+}
+
+document.getElementById('signatureImageInput')?.addEventListener('change',async (e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    savedSignatures.push({dataURL:ev.target.result,date:new Date().toISOString()});
+    localStorage.setItem('savedSignatures',JSON.stringify(savedSignatures));
+    showToast('Signature saved!','success');
+    renderSignatureLibrary();
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+});
+
+function placeSignature(sig){
+  const canvas=document.getElementById('annCanvas');
+  
+  const img=new Image();
+  img.onload=()=>{
+    const maxW=canvas.width*0.4;
+    const maxH=canvas.height*0.2;
+    let w=img.width;
+    let h=img.height;
+    
+    if(w>maxW){ h=h*(maxW/w); w=maxW; }
+    if(h>maxH){ w=w*(maxH/h); h=maxH; }
+    
+    const x=(canvas.width-w)/2;
+    const y=canvas.height-h-50;
+    
+    addObjectWithImage({
+      type:'signature',
+      dataURL:sig.dataURL,
+      x:x,
+      y:y,
+      width:w,
+      height:h
+    });
+    
+    setTimeout(() => annSaveState(), 50);
+  };
+  img.src=sig.dataURL;
+  
+  closeSignatureLibrary();
+  showToast('Signature placed!','success');
+}
+
+function deleteSignature(index){
+  if(!confirm('Delete this signature?')) return;
+  savedSignatures.splice(index,1);
+  localStorage.setItem('savedSignatures',JSON.stringify(savedSignatures));
+  renderSignatureLibrary();
+  showToast('Signature deleted','success');
+}
+
+function annReset(){
+  annPdfDoc=null;
+  annAnnotations={};
+  annObjects={}; // Clear movable objects
+  annCurrentPage=1;
+  drawingListenersAttached=false; // CRITICAL: Reset flag
+  clearObjectCache(); // Clear image cache
+  document.getElementById('annUpload').style.display='flex';
+  document.getElementById('annPageContainer').style.display='none';
+  document.getElementById('annDownloadBtn').disabled=true;
+  document.getElementById('annFileInput').value='';
+  document.getElementById('annThumbnailList').innerHTML='';
+}
+</script>
 </body>
 </html>
