@@ -3,29 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Tools - Complete Application</title>
+    <title>PDF Tools Professional</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Welcome to PDF Tools Professional</h1>
-    </header>
-    
-    <section id="pdf-separator">
-        <h2>PDF Separator Tool</h2>
-        <input type="file" id="pdf-file" accept=".pdf" multiple>
-        <div id="pdf-preview"></div>
-        <button id="separate-pdfs">Separate PDFs</button>
-    </section>
-    
-    <section id="pdf-annotator">
-        <h2>PDF Annotator Tool</h2>
-        <canvas id="pdf-canvas"></canvas>
-        <button id="draw-tool">Draw</button>
-        <button id="stamp-tool">Stamp</button>
-        <button id="signature-tool">Signature</button>
-    </section>
+    <div class="landing-page">
+        <h1>PDF Tools Professional</h1>
+        <div class="tool-selection">
+            <div class="tool-card" id="separator-tool">PDF Separator</div>
+            <div class="tool-card" id="annotator-tool">PDF Annotator</div>
+        </div>
+    </div>
 
-    <script src="script.js"></script>
+    <div id="pdf-separator" class="tool-modal">
+        <h2>PDF Separator Tool</h2>
+        <p>Drag and drop PDF files here.</p>
+        <button id="zip-download">Download as ZIP</button>
+    </div>
+
+    <div id="pdf-annotator" class="tool-modal">
+        <h2>PDF Annotator Tool</h2>
+        <p>Use the tools to annotate your PDF.</p>
+        <button id="download-annotated">Download Annotated PDF</button>
+    </div>
+
+    <script src="scripts.js"></script>
 </body>
 </html>
