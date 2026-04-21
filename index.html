@@ -1,32 +1,16 @@
-<!--
-  PDF SEPARATOR — Internal Tool v1.2
-  =====================================
-  SETUP (one-time):
-  1. Download the following libraries and place them in a ./libs/ folder next to this HTML file:
-     - pdf.js v3.11.174:  https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js
-     - pdf.js worker (same version): https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js
-     - pdf-lib v1.17.1:   https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js
-     - jszip v3.10.1:     https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js
-  2. Open index.html in any modern browser — no server required.
-
-  SECURITY NOTES:
-  - Fully client-side: zero data transmission, no backend, no cookies
-  - No external network calls at runtime
-  - Suitable for sensitive documents
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- LIBRARIES REQUIRED: Download pdf.min.js, pdf-lib.min.js, jszip.min.js and place in ./libs/ folder -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PDF Separator</title>
-<script src="./libs/pdf.min.js"></script>
-<script src="./libs/pdf-lib.min.js"></script>
-<script src="./libs/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; overflow: hidden; height: 100vh; }
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; overflow: hidden; height: 100vh; }
 
 .app {
   display: flex;
@@ -45,7 +29,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 }
 
 .sep-title { font-size: 1.2em; font-weight: 600; color: #1a1a1a; }
-.sep-actions { display: flex; gap: 12px; margin-left: auto; }
+.sep-actions { display: flex; gap: 12px; }
 
 .btn {
   background: white;
@@ -88,7 +72,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 }
 
 .upload-box {
-  display: block;
   background: white;
   border: 3px dashed #d0d0d0;
   border-radius: 16px;
@@ -244,10 +227,7 @@ input[type="file"] { display: none; }
 <body>
 <div class="app">
   <div class="sep-topbar">
-    <div class="sep-title">PDF Separator — v1.2 (Internal Use)</div>
-    <div style="font-size:11px; color:#888; margin-left:16px;">
-      🔒 All processing is done locally in your browser. No files are uploaded or transmitted externally.
-    </div>
+    <div class="sep-title">PDF Separator</div>
     <div class="sep-actions">
       <button class="btn" id="sepNewBtn" style="display:none;">New File</button>
       <button class="btn btn-primary" id="sepDownloadBtn" style="display:none;" disabled>Download ZIP</button>
@@ -277,12 +257,12 @@ input[type="file"] { display: none; }
 
   <div class="sep-content">
     <div class="sep-upload" id="sepUpload">
-      <label for="sepFileInput" class="upload-box" id="sepUploadBox">
+      <div class="upload-box" id="sepUploadBox">
         <div class="icon">📄</div>
         <h2>Upload your PDF</h2>
         <p>Click to browse or drag and drop</p>
         <p style="margin-top:10px; font-size:0.9em; color:#999;">Max 50 MB</p>
-      </label>
+      </div>
       <input type="file" id="sepFileInput" accept=".pdf,application/pdf">
     </div>
 
@@ -298,9 +278,7 @@ input[type="file"] { display: none; }
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-if (typeof pdfjsLib !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = './libs/pdf.worker.min.js';
-}
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const CATEGORIES = [
   ['police-report', 'Police Report'],
@@ -426,16 +404,6 @@ function sepRenderGrid() {
   sepUpdateDownloadBtn();
 }
 
-async function isRealPDF(file) {
-  try {
-    const header = new Uint8Array(await file.slice(0, 4).arrayBuffer());
-    const signature = String.fromCharCode(...header);
-    return signature === '%PDF';
-  } catch {
-    return false;
-  }
-}
-
 async function sepHandleFile(file) {
   if (!file) return;
   if (!isValidPdfFile(file)) {
@@ -447,17 +415,6 @@ async function sepHandleFile(file) {
     return;
   }
 
-  const realPdf = await isRealPDF(file);
-  if (!realPdf) {
-    showToast('Invalid file: not a real PDF', 'error');
-    return;
-  }
-
-  if (typeof pdfjsLib === 'undefined') {
-    showToast('PDF library failed to load. Place pdf.min.js and pdf.worker.min.js in the ./libs/ folder next to this HTML file.', 'error');
-    return;
-  }
-
   showLoading('Loading PDF...');
   try {
     sepReset();
@@ -465,12 +422,6 @@ async function sepHandleFile(file) {
 
     const bytes = await file.arrayBuffer();
     const pdfDoc = await pdfjsLib.getDocument({ data: new Uint8Array(bytes) }).promise;
-
-    if (pdfDoc.numPages > 150) {
-      showToast('PDF has more than 150 pages. Please split it first.', 'error');
-      hideLoading();
-      return;
-    }
 
     const pages = [];
     for (let sourcePage = 1; sourcePage <= pdfDoc.numPages; sourcePage += 1) {
@@ -645,11 +596,6 @@ function sepClearAll() {
 async function sepDownloadZip() {
   if (!sepOriginalFile || isDownloading) return;
 
-  if (typeof PDFLib === 'undefined' || typeof JSZip === 'undefined') {
-    showToast('ZIP/PDF libraries failed to load. Place pdf-lib.min.js and jszip.min.js in the ./libs/ folder.', 'error');
-    return;
-  }
-
   isDownloading = true;
   sepUpdateDownloadBtn();
   showLoading('Building ZIP...');
@@ -699,6 +645,8 @@ async function sepDownloadZip() {
 document.addEventListener('DOMContentLoaded', () => {
   bindPageGridEvents();
   bindUploadDragDrop();
+
+  sepUploadBox.addEventListener('click', () => sepFileInput.click());
 
   sepFileInput.addEventListener('change', async (event) => {
     const file = event.target.files?.[0];
